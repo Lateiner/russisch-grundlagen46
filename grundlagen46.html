@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russische Grammatik: Verben mit 'работать' (Sofortiges Feedback)</title>
+    <!-- Polyfill für Drag & Drop auf Touch-Geräten -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #3f51b5;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        /* Einführungskarte */
+        .intro-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .intro-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .intro-card th, .intro-card td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .intro-card th {
+            background-color: #e8eaf6;
+        }
+
+        /* Übungskarten */
+        .exercise-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary-color);
+            transition: border-left-color 0.3s;
+        }
+
+        .exercise-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        /* Input Styles */
+        select {
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-group label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .radio-group label:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Drag and Drop Styles */
+        .dnd-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            min-height: 50px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border: 1px dashed #ccc;
+        }
+
+        .draggable {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: grab;
+            user-select: none;
+            display: inline-block;
+            margin: 2px;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+
+        .drop-zone {
+            display: inline-block;
+            min-width: 120px;
+            min-height: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            vertical-align: middle;
+            margin: 0 5px;
+            background: #e8eaf6;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        /* Button Styles */
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-reset { background-color: var(--warning-color); }
+        .btn-solve { background-color: var(--info-color); }
+
+        /* Feedback Styles */
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none; /* Hidden by default */
+            font-weight: bold;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            display: block;
+            background-color: #dcedc8;
+            color: #2e7d32;
+        }
+
+        .feedback.incorrect {
+            display: block;
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        /* Utility classes for visual feedback on elements */
+        .visual-correct { 
+            border-color: var(--success-color) !important; 
+            background-color: #dcedc8 !important; 
+            color: #000 !important;
+        }
+        
+        .visual-incorrect { 
+            border-color: var(--error-color) !important; 
+            background-color: #ffcdd2 !important; 
+        }
+
+        /* Special style for radio labels */
+        .radio-group label.visual-correct {
+            border: 1px solid var(--success-color);
+        }
+        .radio-group label.visual-incorrect {
+            border: 1px solid var(--error-color);
+        }
+
+        @media (max-width: 600px) {
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Das Verb работать mit Präfixen</h2>
+
+    <div class="intro-card">
+        <h3>Einführung</h3>
+        <p>Wählen Sie die richtige Antwort oder ziehen Sie das Wort in die Lücke. Das System gibt Ihnen <strong>sofortiges Feedback</strong>.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Verb (Beispiel)</th>
+                    <th>Bedeutung / Nuance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>по</strong>работать</td>
+                    <td>ein wenig / eine gewisse Zeit lang arbeiten</td>
+                </tr>
+                <tr>
+                    <td><strong>за</strong>работать</td>
+                    <td>1. Geld verdienen<br>2. anfangen zu funktionieren</td>
+                </tr>
+                <tr>
+                    <td><strong>под</strong>работать</td>
+                    <td>dazuverdienen (Nebenjob)</td>
+                </tr>
+                <tr>
+                    <td><strong>пере</strong>работать</td>
+                    <td>1. überarbeiten (zu viel arbeiten)<br>2. umarbeiten / recyceln</td>
+                </tr>
+                <tr>
+                    <td><strong>про</strong>работать</td>
+                    <td>eine bestimmte Zeitdauer irgendwo arbeiten</td>
+                </tr>
+                <tr>
+                    <td><strong>с</strong>работаться</td>
+                    <td>gut miteinander auskommen (beruflich)</td>
+                </tr>
+                <tr>
+                    <td><strong>раз</strong>работать</td>
+                    <td>etwas entwickeln / ausarbeiten (Plan)</td>
+                </tr>
+                <tr>
+                    <td><strong>от</strong>работать</td>
+                    <td>1. abarbeiten (Schuld)<br>2. Technik perfektionieren</td>
+                </tr>
+                <tr>
+                    <td><strong>до</strong>работать</td>
+                    <td>etwas zu Ende führen / verbessern</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- START OF EXERCISES -->
+    
+    <!-- Teil 1: Dropdown Übungen (1-5) -->
+    <h2>Teil 1: Wählen Sie das passende Verb (Dropdown)</h2>
+
+    <!-- Exercise 1 -->
+    <div class="exercise-card" id="ex1">
+        <div class="exercise-title">Aufgabe 1</div>
+        <div class="question-text">
+            Ich möchte im Sommer viel Geld __________.
+        </div>
+        <select id="sel1" onchange="checkSelectInstant('ex1', 'sel1', 'correct')">
+            <option value="">-- Bitte wählen --</option>
+            <option value="correct">заработать (verdienen)</option>
+            <option value="wrong">поработать (bisschen arbeiten)</option>
+            <option value="wrong">сработать (funktionieren)</option>
+        </select>
+        <div class="feedback" id="fb-ex1"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetSelect('ex1', 'sel1')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelect('ex1', 'sel1', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 2 -->
+    <div class="exercise-card" id="ex2">
+        <div class="exercise-title">Aufgabe 2</div>
+        <div class="question-text">
+            Ich bin müde, ich werde heute nur ein bisschen __________.
+        </div>
+        <select id="sel2" onchange="checkSelectInstant('ex2', 'sel2', 'correct')">
+            <option value="">-- Bitte wählen --</option>
+            <option value="wrong">разработать (entwickeln)</option>
+            <option value="correct">поработать (ein wenig arbeiten)</option>
+            <option value="wrong">заработать (verdienen)</option>
+        </select>
+        <div class="feedback" id="fb-ex2"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetSelect('ex2', 'sel2')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelect('ex2', 'sel2', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 3 -->
+    <div class="exercise-card" id="ex3">
+        <div class="exercise-title">Aufgabe 3</div>
+        <div class="question-text">
+            Als Student musste er abends als Kellner __________. (Dazuverdienen)
+        </div>
+        <select id="sel3" onchange="checkSelectInstant('ex3', 'sel3', 'correct')">
+            <option value="">-- Bitte wählen --</option>
+            <option value="correct">подрабатывать</option>
+            <option value="wrong">перерабатывать</option>
+            <option value="wrong">обрабатывать</option>
+        </select>
+        <div class="feedback" id="fb-ex3"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetSelect('ex3', 'sel3')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelect('ex3', 'sel3', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 4 -->
+    <div class="exercise-card" id="ex4">
+        <div class="exercise-title">Aufgabe 4</div>
+        <div class="question-text">
+            Der Artikel ist noch nicht fertig, du musst ihn __________. (verbessern/beenden)
+        </div>
+        <select id="sel4" onchange="checkSelectInstant('ex4', 'sel4', 'correct')">
+            <option value="">-- Bitte wählen --</option>
+            <option value="wrong">заработать</option>
+            <option value="wrong">наработать</option>
+            <option value="correct">доработать</option>
+        </select>
+        <div class="feedback" id="fb-ex4"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetSelect('ex4', 'sel4')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelect('ex4', 'sel4', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 5 -->
+    <div class="exercise-card" id="ex5">
+        <div class="exercise-title">Aufgabe 5</div>
+        <div class="question-text">
+            Du siehst schlecht aus. Du solltest nicht so viel __________! (Überstunden machen)
+        </div>
+        <select id="sel5" onchange="checkSelectInstant('ex5', 'sel5', 'correct')">
+            <option value="">-- Bitte wählen --</option>
+            <option value="correct">перерабатывать</option>
+            <option value="wrong">зарабатывать</option>
+            <option value="wrong">разрабатывать</option>
+        </select>
+        <div class="feedback" id="fb-ex5"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetSelect('ex5', 'sel5')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelect('ex5', 'sel5', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Teil 2: Multiple Choice (6-10) -->
+    <h2>Teil 2: Wählen Sie die richtige Antwort (Multiple Choice)</h2>
+
+    <!-- Exercise 6 -->
+    <div class="exercise-card" id="ex6">
+        <div class="exercise-title">Aufgabe 6</div>
+        <div class="question-text">Was bedeutet „Мы отлично сработались“?</div>
+        <div class="radio-group">
+            <label><input type="radio" name="rad6" value="wrong" onclick="checkRadioInstant('ex6', 'rad6', 'correct')"> Wir haben viel gearbeitet.</label>
+            <label><input type="radio" name="rad6" value="correct" onclick="checkRadioInstant('ex6', 'rad6', 'correct')"> Wir kommen beruflich super miteinander aus.</label>
+            <label><input type="radio" name="rad6" value="wrong" onclick="checkRadioInstant('ex6', 'rad6', 'correct')"> Wir haben zusammen Geld verdient.</label>
+        </div>
+        <div class="feedback" id="fb-ex6"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetRadio('ex6', 'rad6')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex6', 'rad6', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 7 -->
+    <div class="exercise-card" id="ex7">
+        <div class="exercise-title">Aufgabe 7</div>
+        <div class="question-text">Welches Verb passt: „Die Ingenieure haben einen neuen Motor ______.“ (entwickelt)?</div>
+        <div class="radio-group">
+            <label><input type="radio" name="rad7" value="correct" onclick="checkRadioInstant('ex7', 'rad7', 'correct')"> разработали</label>
+            <label><input type="radio" name="rad7" value="wrong" onclick="checkRadioInstant('ex7', 'rad7', 'correct')"> наработали</label>
+            <label><input type="radio" name="rad7" value="wrong" onclick="checkRadioInstant('ex7', 'rad7', 'correct')"> подработали</label>
+        </div>
+        <div class="feedback" id="fb-ex7"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetRadio('ex7', 'rad7')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex7', 'rad7', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 8 -->
+    <div class="exercise-card" id="ex8">
+        <div class="exercise-title">Aufgabe 8</div>
+        <div class="question-text">„Мой компьютер заработал!“ Was bedeutet das?</div>
+        <div class="radio-group">
+            <label><input type="radio" name="rad8" value="wrong" onclick="checkRadioInstant('ex8', 'rad8', 'correct')"> Mein Computer hat Geld verdient.</label>
+            <label><input type="radio" name="rad8" value="wrong" onclick="checkRadioInstant('ex8', 'rad8', 'correct')"> Mein Computer ist kaputt gegangen.</label>
+            <label><input type="radio" name="rad8" value="correct" onclick="checkRadioInstant('ex8', 'rad8', 'correct')"> Mein Computer funktioniert wieder (läuft an).</label>
+        </div>
+        <div class="feedback" id="fb-ex8"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetRadio('ex8', 'rad8')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex8', 'rad8', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 9 -->
+    <div class="exercise-card" id="ex9">
+        <div class="exercise-title">Aufgabe 9</div>
+        <div class="question-text">„Она проработала в школе 20 лет.“</div>
+        <div class="radio-group">
+            <label><input type="radio" name="rad9" value="correct" onclick="checkRadioInstant('ex9', 'rad9', 'correct')"> Sie hat 20 Jahre lang in der Schule gearbeitet.</label>
+            <label><input type="radio" name="rad9" value="wrong" onclick="checkRadioInstant('ex9', 'rad9', 'correct')"> Sie hat vor 20 Jahren in der Schule gearbeitet.</label>
+            <label><input type="radio" name="rad9" value="wrong" onclick="checkRadioInstant('ex9', 'rad9', 'correct')"> Sie hat 20 Stunden gearbeitet.</label>
+        </div>
+        <div class="feedback" id="fb-ex9"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetRadio('ex9', 'rad9')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex9', 'rad9', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 10 -->
+    <div class="exercise-card" id="ex10">
+        <div class="exercise-title">Aufgabe 10</div>
+        <div class="question-text">Welches Verb nutzt man für „Daten verarbeiten“ oder „eine Wunde behandeln“?</div>
+        <div class="radio-group">
+            <label><input type="radio" name="rad10" value="wrong" onclick="checkRadioInstant('ex10', 'rad10', 'correct')"> зарабатывать</label>
+            <label><input type="radio" name="rad10" value="correct" onclick="checkRadioInstant('ex10', 'rad10', 'correct')"> обрабатывать</label>
+            <label><input type="radio" name="rad10" value="wrong" onclick="checkRadioInstant('ex10', 'rad10', 'correct')"> дорабатывать</label>
+        </div>
+        <div class="feedback" id="fb-ex10"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetRadio('ex10', 'rad10')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex10', 'rad10', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Teil 3: Drag & Drop Sätze (11-15) -->
+    <h2>Teil 3: Ziehen Sie das richtige Wort in die Lücke</h2>
+
+    <!-- Exercise 11 -->
+    <div class="exercise-card" id="ex11">
+        <div class="exercise-title">Aufgabe 11</div>
+        <div class="question-text">
+            Wir müssen einen Plan __________. (entwickeln)
+        </div>
+        <div class="dnd-container source-zone" id="source11">
+            <span class="draggable" draggable="true" id="d11-1" data-val="wrong">заработать</span>
+            <span class="draggable" draggable="true" id="d11-2" data-val="correct">разработать</span>
+            <span class="draggable" draggable="true" id="d11-3" data-val="wrong">переработать</span>
+        </div>
+        <div class="drop-area">
+            Lösung: <span class="drop-zone" id="drop11" data-accept="correct" data-card-id="ex11"></span>
+        </div>
+        <div class="feedback" id="fb-ex11"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex11', 'source11', 'drop11')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex11', 'source11', 'drop11', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 12 -->
+    <div class="exercise-card" id="ex12">
+        <div class="exercise-title">Aufgabe 12</div>
+        <div class="question-text">
+            Das Werk __________ Altpapier. (recycelt/verarbeitet)
+        </div>
+        <div class="dnd-container source-zone" id="source12">
+            <span class="draggable" draggable="true" id="d12-1" data-val="correct">перерабатывает</span>
+            <span class="draggable" draggable="true" id="d12-2" data-val="wrong">зарабатывает</span>
+            <span class="draggable" draggable="true" id="d12-3" data-val="wrong">подробaтывает</span>
+        </div>
+        <div class="drop-area">
+            Lösung: <span class="drop-zone" id="drop12" data-accept="correct" data-card-id="ex12"></span>
+        </div>
+        <div class="feedback" id="fb-ex12"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex12', 'source12', 'drop12')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex12', 'source12', 'drop12', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 13 -->
+    <div class="exercise-card" id="ex13">
+        <div class="exercise-title">Aufgabe 13</div>
+        <div class="question-text">
+            Die Tänzerin muss diese Bewegung __________. (perfektionieren/üben)
+        </div>
+        <div class="dnd-container source-zone" id="source13">
+            <span class="draggable" draggable="true" id="d13-1" data-val="wrong">заработать</span>
+            <span class="draggable" draggable="true" id="d13-2" data-val="correct">отработать</span>
+            <span class="draggable" draggable="true" id="d13-3" data-val="wrong">сработать</span>
+        </div>
+        <div class="drop-area">
+            Lösung: <span class="drop-zone" id="drop13" data-accept="correct" data-card-id="ex13"></span>
+        </div>
+        <div class="feedback" id="fb-ex13"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex13', 'source13', 'drop13')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex13', 'source13', 'drop13', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 14 -->
+    <div class="exercise-card" id="ex14">
+        <div class="exercise-title">Aufgabe 14</div>
+        <div class="question-text">
+            Ich habe so viel gearbeitet, ich habe mich völlig __________. (ausgepowert)
+        </div>
+        <div class="dnd-container source-zone" id="source14">
+            <span class="draggable" draggable="true" id="d14-1" data-val="wrong">заработался</span>
+            <span class="draggable" draggable="true" id="d14-2" data-val="wrong">доработался</span>
+            <span class="draggable" draggable="true" id="d14-3" data-val="correct">уработался</span>
+        </div>
+        <div class="drop-area">
+            Lösung: <span class="drop-zone" id="drop14" data-accept="correct" data-card-id="ex14"></span>
+        </div>
+        <div class="feedback" id="fb-ex14"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex14', 'source14', 'drop14')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex14', 'source14', 'drop14', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 15 -->
+    <div class="exercise-card" id="ex15">
+        <div class="exercise-title">Aufgabe 15</div>
+        <div class="question-text">
+            Unser Plan hat perfekt __________. (funktioniert/Erfolg gehabt)
+        </div>
+        <div class="dnd-container source-zone" id="source15">
+            <span class="draggable" draggable="true" id="d15-1" data-val="correct">сработал</span>
+            <span class="draggable" draggable="true" id="d15-2" data-val="wrong">обработал</span>
+            <span class="draggable" draggable="true" id="d15-3" data-val="wrong">переработал</span>
+        </div>
+        <div class="drop-area">
+            Lösung: <span class="drop-zone" id="drop15" data-accept="correct" data-card-id="ex15"></span>
+        </div>
+        <div class="feedback" id="fb-ex15"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex15', 'source15', 'drop15')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex15', 'source15', 'drop15', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Teil 4: Gemischte Zuordnungen (16-20) -->
+    <h2>Teil 4: Was passt zusammen? (Drag & Drop)</h2>
+
+    <!-- Exercise 16 -->
+    <div class="exercise-card" id="ex16">
+        <div class="exercise-title">Aufgabe 16</div>
+        <div class="question-text">
+            Zuordnung: <strong>заработаться</strong> (Reflexiv)
+        </div>
+        <div class="dnd-container source-zone" id="source16">
+            <span class="draggable" draggable="true" id="d16-1" data-val="wrong">Geld verdienen</span>
+            <span class="draggable" draggable="true" id="d16-2" data-val="correct">Die Zeit über der Arbeit vergessen</span>
+            <span class="draggable" draggable="true" id="d16-3" data-val="wrong">Anfangen zu arbeiten</span>
+        </div>
+        <div class="drop-area">
+            Bedeutung: <span class="drop-zone" id="drop16" data-accept="correct" data-card-id="ex16"></span>
+        </div>
+        <div class="feedback" id="fb-ex16"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex16', 'source16', 'drop16')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex16', 'source16', 'drop16', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 17 -->
+    <div class="exercise-card" id="ex17">
+        <div class="exercise-title">Aufgabe 17</div>
+        <div class="question-text">
+            Zuordnung: <strong>наработать</strong> (z.B. Erfahrung)
+        </div>
+        <div class="dnd-container source-zone" id="source17">
+            <span class="draggable" draggable="true" id="d17-1" data-val="correct">Eine Menge von etwas erarbeiten / sammeln</span>
+            <span class="draggable" draggable="true" id="d17-2" data-val="wrong">Nicht genug arbeiten</span>
+            <span class="draggable" draggable="true" id="d17-3" data-val="wrong">Auf einer Oberfläche arbeiten</span>
+        </div>
+        <div class="drop-area">
+            Bedeutung: <span class="drop-zone" id="drop17" data-accept="correct" data-card-id="ex17"></span>
+        </div>
+        <div class="feedback" id="fb-ex17"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex17', 'source17', 'drop17')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex17', 'source17', 'drop17', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 18 -->
+    <div class="exercise-card" id="ex18">
+        <div class="exercise-title">Aufgabe 18</div>
+        <div class="question-text">
+            Zuordnung: <strong>недоработать</strong>
+        </div>
+        <div class="dnd-container source-zone" id="source18">
+            <span class="draggable" draggable="true" id="d18-1" data-val="wrong">Bis zum Ende arbeiten</span>
+            <span class="draggable" draggable="true" id="d18-2" data-val="wrong">Keine Arbeit haben</span>
+            <span class="draggable" draggable="true" id="d18-3" data-val="correct">Mangelhaft arbeiten / etwas nicht fertig machen</span>
+        </div>
+        <div class="drop-area">
+            Bedeutung: <span class="drop-zone" id="drop18" data-accept="correct" data-card-id="ex18"></span>
+        </div>
+        <div class="feedback" id="fb-ex18"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex18', 'source18', 'drop18')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex18', 'source18', 'drop18', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 19 -->
+    <div class="exercise-card" id="ex19">
+        <div class="exercise-title">Aufgabe 19</div>
+        <div class="question-text">
+            Zuordnung: <strong>выработать</strong> (z.B. Strom, Gewohnheit)
+        </div>
+        <div class="dnd-container source-zone" id="source19">
+            <span class="draggable" draggable="true" id="d19-1" data-val="correct">Erzeugen / Produzieren / Entwickeln</span>
+            <span class="draggable" draggable="true" id="d19-2" data-val="wrong">Aus dem Haus zur Arbeit gehen</span>
+            <span class="draggable" draggable="true" id="d19-3" data-val="wrong">Die Arbeit verlassen</span>
+        </div>
+        <div class="drop-area">
+            Bedeutung: <span class="drop-zone" id="drop19" data-accept="correct" data-card-id="ex19"></span>
+        </div>
+        <div class="feedback" id="fb-ex19"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex19', 'source19', 'drop19')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex19', 'source19', 'drop19', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Exercise 20 -->
+    <div class="exercise-card" id="ex20">
+        <div class="exercise-title">Aufgabe 20</div>
+        <div class="question-text">
+            Zuordnung: <strong>отработать</strong> (Schulden)
+        </div>
+        <div class="dnd-container source-zone" id="source20">
+            <span class="draggable" draggable="true" id="d20-1" data-val="wrong">Geld verlieren</span>
+            <span class="draggable" draggable="true" id="d20-2" data-val="correct">Durch Arbeit bezahlen / abarbeiten</span>
+            <span class="draggable" draggable="true" id="d20-3" data-val="wrong">Die Arbeit verweigern</span>
+        </div>
+        <div class="drop-area">
+            Bedeutung: <span class="drop-zone" id="drop20" data-accept="correct" data-card-id="ex20"></span>
+        </div>
+        <div class="feedback" id="fb-ex20"></div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetDnD('ex20', 'source20', 'drop20')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDnD('ex20', 'source20', 'drop20', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Helper Functions for Feedback ---
+    function showFeedback(elementId, isCorrect) {
+        const feedbackEl = document.getElementById('fb-' + elementId);
+        if (!feedbackEl) return;
+        
+        feedbackEl.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+        if (isCorrect) {
+            feedbackEl.innerHTML = 'Richtig! Gut gemacht.';
+        } else {
+            feedbackEl.innerHTML = 'Falsch. Versuchen Sie es noch einmal.';
+        }
+    }
+
+    function clearFeedback(elementId) {
+        const feedbackEl = document.getElementById('fb-' + elementId);
+        if (!feedbackEl) return;
+        feedbackEl.className = 'feedback';
+        feedbackEl.innerHTML = '';
+        feedbackEl.style.display = 'none';
+    }
+
+    // --- Dropdown Logic (Sofortiges Feedback) ---
+    function checkSelectInstant(cardId, selectId, correctValue) {
+        const select = document.getElementById(selectId);
+        const selectedValue = select.value;
+        
+        if (selectedValue === "") {
+            select.classList.remove('visual-correct', 'visual-incorrect');
+            clearFeedback(cardId);
+            return;
+        }
+
+        const isCorrect = selectedValue === correctValue;
+        
+        select.classList.remove('visual-correct', 'visual-incorrect');
+        if (isCorrect) {
+            select.classList.add('visual-correct');
+        } else {
+            select.classList.add('visual-incorrect');
+        }
+        showFeedback(cardId, isCorrect);
+    }
+
+    function resetSelect(cardId, selectId) {
+        const select = document.getElementById(selectId);
+        select.value = "";
+        select.classList.remove('visual-correct', 'visual-incorrect');
+        clearFeedback(cardId);
+    }
+
+    function solveSelect(cardId, selectId, correctValue) {
+        const select = document.getElementById(selectId);
+        select.value = correctValue;
+        // Trigger manually since setting value via JS doesn't fire change event
+        checkSelectInstant(cardId, selectId, correctValue);
+    }
+
+    // --- Radio Button Logic (Sofortiges Feedback) ---
+    function checkRadioInstant(cardId, radioName, correctValue) {
+        const radios = document.getElementsByName(radioName);
+        let selectedValue = null;
+        let selectedRadio = null;
+
+        for (const radio of radios) {
+            if (radio.checked) {
+                selectedValue = radio.value;
+                selectedRadio = radio;
+            }
+            // Reset styles for all
+            radio.parentElement.classList.remove('visual-correct', 'visual-incorrect');
+        }
+
+        if (!selectedRadio) return;
+
+        const isCorrect = selectedValue === correctValue;
+        if (isCorrect) {
+            selectedRadio.parentElement.classList.add('visual-correct');
+        } else {
+            selectedRadio.parentElement.classList.add('visual-incorrect');
+        }
+        showFeedback(cardId, isCorrect);
+    }
+
+    function resetRadio(cardId, radioName) {
+        const radios = document.getElementsByName(radioName);
+        for (const radio of radios) {
+            radio.checked = false;
+            radio.parentElement.classList.remove('visual-correct', 'visual-incorrect');
+        }
+        clearFeedback(cardId);
+    }
+
+    function solveRadio(cardId, radioName, correctValue) {
+        const radios = document.getElementsByName(radioName);
+        for (const radio of radios) {
+            if (radio.value === correctValue) {
+                radio.checked = true;
+                // Manually trigger visual update
+                checkRadioInstant(cardId, radioName, correctValue);
+            }
+        }
+    }
+
+    // --- Drag and Drop Logic (Sofortiges Feedback) ---
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const draggables = document.querySelectorAll('.draggable');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const sourceZones = document.querySelectorAll('.source-zone');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', () => {
+                draggable.classList.add('dragging');
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault(); 
+                if (zone.childNodes.length === 0) {
+                     zone.style.backgroundColor = '#d1c4e9';
+                }
+            });
+
+            zone.addEventListener('dragleave', () => {
+                if (!zone.classList.contains('visual-correct') && !zone.classList.contains('visual-incorrect')) {
+                    zone.style.backgroundColor = '#e8eaf6';
+                }
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.style.backgroundColor = ''; // Reset standard drag-hover color
+                
+                const draggable = document.querySelector('.dragging');
+                if (!draggable) return;
+
+                // Logic: If zone has an item, send existing back to source, then accept new
+                if (zone.childNodes.length > 0) {
+                     // Find the corresponding source zone
+                     const cardId = zone.getAttribute('data-card-id');
+                     const source = document.getElementById('source' + cardId.replace('ex', ''));
+                     source.appendChild(zone.firstChild);
+                }
+
+                zone.appendChild(draggable);
+                
+                // --- IMMEDIATE CHECK START ---
+                const cardId = zone.getAttribute('data-card-id');
+                validateDrop(zone, cardId);
+                // --- IMMEDIATE CHECK END ---
+            });
+        });
+        
+        // Dropping back to source
+        sourceZones.forEach(zone => {
+             zone.addEventListener('dragover', e => {
+                e.preventDefault();
+            });
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                const draggable = document.querySelector('.dragging');
+                if (draggable) {
+                    zone.appendChild(draggable);
+                    
+                    // If dragged FROM a drop zone, we need to clear feedback on that drop zone
+                    // Since we don't know exactly which zone it came from in this event easily,
+                    // we can rely on the fact that if a drop zone becomes empty, we should reset it.
+                    // Let's iterate all drop zones to clean up empty ones.
+                    dropZones.forEach(dz => {
+                        if (dz.childNodes.length === 0) {
+                            dz.classList.remove('visual-correct', 'visual-incorrect');
+                            dz.style.backgroundColor = '#e8eaf6';
+                            const cId = dz.getAttribute('data-card-id');
+                            clearFeedback(cId);
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+    function validateDrop(zone, cardId) {
+        const child = zone.firstElementChild;
+        zone.classList.remove('visual-correct', 'visual-incorrect');
+
+        if (!child) {
+            clearFeedback(cardId);
+            return;
+        }
+
+        const isCorrect = child.getAttribute('data-val') === zone.getAttribute('data-accept');
+        
+        if (isCorrect) {
+            zone.classList.add('visual-correct');
+        } else {
+            zone.classList.add('visual-incorrect');
+        }
+        showFeedback(cardId, isCorrect);
+    }
+
+    function resetDnD(cardId, sourceId, dropZoneId) {
+        const source = document.getElementById(sourceId);
+        const zone = document.getElementById(dropZoneId);
+        
+        while (zone.firstChild) {
+            source.appendChild(zone.firstChild);
+        }
+
+        // Sort items for neatness
+        const items = Array.from(source.children);
+        items.sort((a, b) => a.id.localeCompare(b.id));
+        items.forEach(item => source.appendChild(item));
+
+        zone.classList.remove('visual-correct', 'visual-incorrect');
+        zone.style.backgroundColor = '#e8eaf6';
+        clearFeedback(cardId);
+    }
+
+    function solveDnD(cardId, sourceId, dropZoneId, correctVal) {
+        // First reset to ensure clean state
+        resetDnD(cardId, sourceId, dropZoneId);
+        
+        const source = document.getElementById(sourceId);
+        const zone = document.getElementById(dropZoneId);
+        
+        // Find correct item
+        const correctItem = Array.from(source.children).find(item => item.getAttribute('data-val') === correctVal);
+        
+        if (correctItem) {
+            zone.appendChild(correctItem);
+            validateDrop(zone, cardId);
+        }
+    }
+
+</script>
+
+</body>
+</html>
