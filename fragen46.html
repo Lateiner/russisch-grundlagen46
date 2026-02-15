@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Persönliches Interview</title>
+    <style>
+        :root {
+            --bot-color: #e3f2fd; /* Light Blue */
+            --bot-text: #1565c0;
+            --user-color: #f3e5f5; /* Light Purple */
+            --user-text: #7b1fa2;
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --text: #333;
+            --accent: #ff9800;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px; /* Narrower like a chat app */
+        }
+
+        h1 {
+            color: #37474f;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #78909c;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Chat Interface */
+        .chat-window {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 20px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Messages */
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 85%;
+            line-height: 1.5;
+            animation: popIn 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Bot (Question) */
+        .msg-bot {
+            background-color: var(--bot-color);
+            color: var(--bot-text);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .msg-bot .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            opacity: 0.7;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .ru-question {
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .de-hint {
+            font-style: italic;
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+
+        /* User (Answer Display) */
+        .msg-user {
+            background-color: var(--user-color);
+            color: var(--user-text);
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            display: none; /* Hidden until answered */
+            text-align: right;
+        }
+
+        /* Interaction Area (Options) */
+        .options-area {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .options-title {
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .answer-btn {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+            text-align: left;
+        }
+
+        .answer-btn:hover {
+            border-color: var(--user-text);
+            background-color: #f3e5f5;
+        }
+
+        /* Feedback / Translation Box */
+        .feedback-box {
+            margin-top: 15px;
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none; /* Hidden initially */
+            border: 1px solid #ffe0b2;
+        }
+
+        .feedback-title {
+            font-weight: bold;
+            color: #e65100;
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        /* Navigation */
+        .next-btn {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            display: none;
+        }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        .btn-restart {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (min-width: 600px) {
+            /* .options-grid { grid-template-columns: 1fr 1fr; } */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Interview-Simulator</h1>
+    <h2>Beantworten Sie die Fragen mit der Option, die am besten zu Ihnen passt.</h2>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Chat Area -->
+    <div id="chatArea" class="chat-window">
+        
+        <!-- Bot Question Bubble -->
+        <div class="message msg-bot">
+            <span class="label">Frage</span>
+            <span class="ru-question" id="questionRu">...</span>
+            <span class="de-hint" id="questionDe">...</span>
+        </div>
+
+        <!-- User Answer Bubble (appears after selection) -->
+        <div class="message msg-user" id="userBubble">
+            <span id="userAnswerText">...</span>
+        </div>
+
+        <!-- Feedback / Translation of Answer -->
+        <div class="feedback-box" id="feedbackBox">
+            <span class="feedback-title">Das bedeutet:</span>
+            <span id="feedbackText">...</span>
+        </div>
+
+        <!-- Input Area -->
+        <div class="options-area" id="optionsArea">
+            <div class="options-title">Wähle deine Antwort:</div>
+            <div class="options-grid" id="optionsGrid">
+                <!-- Buttons injected here -->
+            </div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Nächste Frage</button>
+        </div>
+
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-screen">
+        <h2 style="color: #2e7d32;">Vielen Dank für das Gespräch!</h2>
+        <p>Sie haben alle Fragen beantwortet.</p>
+        <button class="btn-restart" onclick="restartQuiz()">Neustart</button>
+    </div>
+
+</div>
+
+<script>
+    const conversation = [
+        {
+            q_ru: "Вы когда-нибудь подрабатывали?",
+            q_de: "(Haben Sie schon einmal irgendwo gejobbt / etwas dazuverdient?)",
+            answers: [
+                { ru: "Да, когда я был студентом.", de: "Ja, als ich Student war." },
+                { ru: "Да, я подрабатывал в кафе.", de: "Ja, ich habe in einem Café gejobbt." },
+                { ru: "Нет, я никогда не подрабатывал.", de: "Nein, ich habe noch nie gejobbt." },
+                { ru: "Я сейчас подрабатываю таксистом.", de: "Ich jobbe gerade als Taxifahrer." }
+            ]
+        },
+        {
+            q_ru: "Когда вы в последний раз переработали?",
+            q_de: "(Wann haben Sie sich das letzte Mal überarbeitet / zu viel gearbeitet?)",
+            answers: [
+                { ru: "Вчера. Я очень устал.", de: "Gestern. Ich bin sehr müde." },
+                { ru: "На прошлой неделе.", de: "Letzte Woche." },
+                { ru: "Я стараюсь не перерабатывать.", de: "Ich versuche, mich nicht zu überarbeiten (keine Überstunden zu machen)." },
+                { ru: "Я трудоголик, я всегда перерабатываю!", de: "Ich bin ein Workaholic, ich arbeite immer zu viel!" }
+            ]
+        },
+        {
+            q_ru: "Вы легко срабатываетесь с новыми людьми?",
+            q_de: "(Kommen Sie beruflich leicht mit neuen Leuten klar / spielen sich ein?)",
+            answers: [
+                { ru: "Да, я легко срабатываюсь со всеми.", de: "Ja, ich komme mit allen leicht klar." },
+                { ru: "Нет, мне нужно время.", de: "Nein, ich brauche Zeit." },
+                { ru: "Обычно да, но бывают исключения.", de: "Normalerweise ja, aber es gibt Ausnahmen." }
+            ]
+        },
+        {
+            q_ru: "Вы уже заработали свой первый миллион?",
+            q_de: "(Haben Sie schon Ihre erste Million verdient?)",
+            answers: [
+                { ru: "К сожалению, ещё нет.", de: "Leider noch nicht." },
+                { ru: "Я в процессе!", de: "Ich bin dabei!" },
+                { ru: "Деньги – не главное.", de: "Geld ist nicht die Hauptsache." },
+                { ru: "Конечно! Давно.", de: "Natürlich! Schon lange." }
+            ]
+        },
+        {
+            q_ru: "Сколько вы проработали на прошлом месте?",
+            q_de: "(Wie lange haben Sie an Ihrer letzten Stelle gearbeitet?)",
+            answers: [
+                { ru: "Я проработал там 5 лет.", de: "Ich habe dort 5 Jahre gearbeitet." },
+                { ru: "Всего один месяц.", de: "Nur einen Monat." },
+                { ru: "Я никогда не работал.", de: "Ich habe noch nie gearbeitet." },
+                { ru: "Очень долго.", de: "Sehr lange." }
+            ]
+        },
+        {
+            q_ru: "Вам нужно доработать этот проект?",
+            q_de: "(Müssen Sie dieses Projekt noch fertigstellen/überarbeiten?)",
+            answers: [
+                { ru: "Да, осталось ещё немного.", de: "Ja, es fehlt noch ein bisschen." },
+                { ru: "Нет, всё уже готово.", de: "Nein, alles ist schon fertig." },
+                { ru: "Я не хочу его дорабатывать.", de: "Ich will es nicht überarbeiten." }
+            ]
+        }
+    ];
+
+    let currentIdx = 0;
+
+    const chatArea = document.getElementById('chatArea');
+    const resultArea = document.getElementById('resultArea');
+    const questionRu = document.getElementById('questionRu');
+    const questionDe = document.getElementById('questionDe');
+    const userBubble = document.getElementById('userBubble');
+    const userAnswerText = document.getElementById('userAnswerText');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const feedbackText = document.getElementById('feedbackText');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const optionsTitle = document.querySelector('.options-title');
+
+    function initQuiz() {
+        currentIdx = 0;
+        chatArea.style.display = 'flex';
+        resultArea.style.display = 'none';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = conversation[currentIdx];
+        
+        // Update Progress
+        progressBar.style.width = `${(currentIdx / conversation.length) * 100}%`;
+
+        // Set Bot Message
+        questionRu.textContent = q.q_ru;
+        questionDe.textContent = q.q_de;
+
+        // Reset UI
+        userBubble.style.display = 'none';
+        feedbackBox.style.display = 'none';
+        nextBtn.style.display = 'none';
+        optionsGrid.style.display = 'grid'; // Show buttons
+        optionsTitle.style.display = 'block';
+
+        // Generate Buttons
+        optionsGrid.innerHTML = '';
+        q.answers.forEach(ans => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.textContent = ans.ru;
+            btn.onclick = () => selectAnswer(ans.ru, ans.de);
+            optionsGrid.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(ruText, deText) {
+        // Show User Bubble
+        userAnswerText.textContent = ruText;
+        userBubble.style.display = 'block';
+
+        // Show Translation Feedback
+        feedbackText.textContent = deText;
+        feedbackBox.style.display = 'block';
+
+        // Hide Options to clean up UI
+        optionsGrid.style.display = 'none';
+        optionsTitle.style.display = 'none';
+
+        // Show Next Button
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < conversation.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        chatArea.style.display = 'none';
+        resultArea.style.display = 'block';
+        progressBar.style.width = '100%';
+    }
+
+    function restartQuiz() {
+        initQuiz();
+    }
+
+    // Start
+    initQuiz();
+
+</script>
+
+</body>
+</html>
