@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Nuancen verstehen (RU -> DE)</title>
+    <style>
+        :root {
+            --primary: #d84315; /* Deep Orange */
+            --primary-light: #fbe9e7;
+            --secondary: #37474f; /* Dark Blue Grey */
+            --bg: #eceff1;
+            --card-bg: #ffffff;
+            --text: #333;
+            --correct: #2e7d32;
+            --wrong: #c62828;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: var(--secondary);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #78909c;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #cfd8dc;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Card Styles */
+        .quiz-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-top: 5px solid var(--primary);
+        }
+
+        /* Russian Sentence Display */
+        .ru-sentence-box {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .lang-label {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: #90a4ae;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .ru-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary);
+            line-height: 1.4;
+            font-family: 'Georgia', serif; /* Serif for better Cyrillic reading */
+        }
+
+        /* Options Grid */
+        .options-label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #b0bec5;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-weight: 500;
+            text-align: left;
+            position: relative;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+            transform: translateX(5px);
+        }
+
+        .option-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+        }
+
+        /* Feedback States */
+        .option-btn.correct {
+            background-color: #e8f5e9;
+            border-color: var(--correct);
+            color: #1b5e20;
+            font-weight: bold;
+        }
+        
+        .option-btn.correct::after {
+            content: "✓";
+            position: absolute;
+            right: 15px;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #ffebee;
+            border-color: var(--wrong);
+            color: #b71c1c;
+            text-decoration: line-through;
+        }
+
+        /* Navigation */
+        .nav-area {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 25px;
+            height: 45px;
+        }
+
+        .btn-next {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .btn-next:hover { background-color: #263238; }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .score { font-size: 3rem; margin: 20px 0; font-weight: bold; }
+        .score-perfect { color: var(--correct); }
+        .score-average { color: var(--secondary); }
+
+        .btn-restart {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (min-width: 600px) {
+            .options-grid { grid-template-columns: 1fr 1fr; }
+            .ru-text { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Übersetzung: RU → DE</h1>
+    <h2>Welche deutsche Bedeutung trifft die Nuance am besten?</h2>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quizArea" class="quiz-card">
+        
+        <!-- Russian Source Sentence -->
+        <div class="ru-sentence-box">
+            <span class="lang-label">Russischer Satz</span>
+            <div class="ru-text" id="ruText">...</div>
+        </div>
+
+        <span class="options-label">Das bedeutet genau:</span>
+
+        <!-- Options -->
+        <div class="options-grid" id="optionsContainer">
+            <!-- Buttons injected here -->
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-area">
+            <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Weiter</button>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-screen">
+        <h2 id="resultTitle">Ergebnis</h2>
+        <p id="resultMsg">...</p>
+        <div class="score" id="finalScore"></div>
+        <button class="btn-restart" id="restartBtn" onclick="restartQuiz()">Neustart</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        {
+            ru: "Мы отлично сработались.",
+            correct: "Wir haben uns gut aufeinander eingespielt.",
+            distractors: ["Wir haben viel zusammen gearbeitet.", "Wir haben zusammen Geld verdient.", "Wir haben die Arbeit beendet."]
+        },
+        {
+            ru: "План сработал.",
+            correct: "Der Plan hat funktioniert (Erfolg gehabt).",
+            distractors: ["Der Plan wurde bearbeitet.", "Der Plan hat Geld verdient.", "Der Plan ist kaputt gegangen."]
+        },
+        {
+            ru: "Он заработался.",
+            correct: "Er hat die Zeit über der Arbeit vergessen.",
+            distractors: ["Er hat viel Geld verdient.", "Er hat angefangen zu arbeiten.", "Er hat zu wenig gearbeitet."]
+        },
+        {
+            ru: "Я подрабатываю в такси.",
+            correct: "Ich verdiene mir im Taxi etwas dazu (jobbe).",
+            distractors: ["Ich arbeite unter einem Taxi.", "Ich arbeite sehr viel im Taxi.", "Ich habe die Arbeit im Taxi beendet."]
+        },
+        {
+            ru: "Вам нужно доработать текст.",
+            correct: "Sie müssen den Text überarbeiten / fertigstellen.",
+            distractors: ["Sie müssen den Text neu schreiben.", "Sie haben den Text gut geschrieben.", "Sie müssen mit dem Text arbeiten."]
+        },
+        {
+            ru: "Мой дедушка проработал там 40 лет.",
+            correct: "Mein Opa war dort 40 Jahre lang tätig.",
+            distractors: ["Mein Opa hat dort kurz gearbeitet.", "Mein Opa hat sich dort eingearbeitet.", "Mein Opa hat dort Geld verdient."]
+        },
+        {
+            ru: "Завод перерабатывает бумагу.",
+            correct: "Die Fabrik recycelt (verarbeitet) Papier.",
+            distractors: ["Die Fabrik stellt Papier her.", "Die Fabrik arbeitet zu viel an Papier.", "Die Fabrik bearbeitet Papier."]
+        },
+        {
+            ru: "Боксер отрабатывает удар.",
+            correct: "Der Boxer trainiert (perfektioniert) den Schlag.",
+            distractors: ["Der Boxer arbeitet gegen den Schlag.", "Der Boxer beendet den Schlag.", "Der Boxer hat den Schlag verdient."]
+        },
+        {
+            ru: "За год я наработал базу клиентов.",
+            correct: "In einem Jahr habe ich mir einen Kundenstamm erarbeitet (angesammelt).",
+            distractors: ["Ich habe an den Kunden gearbeitet.", "Ich habe die Kunden bearbeitet.", "Ich habe mit den Kunden Geld verdient."]
+        },
+        {
+            ru: "Все сотрудники сегодня перерабатывают.",
+            correct: "Alle Mitarbeiter machen heute Überstunden.",
+            distractors: ["Alle Mitarbeiter arbeiten heute erneut.", "Alle Mitarbeiter recyceln heute.", "Alle Mitarbeiter arbeiten heute sehr gut."]
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let answered = false;
+
+    const ruText = document.getElementById('ruText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    
+    const quizArea = document.getElementById('quizArea');
+    const resultArea = document.getElementById('resultArea');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMsg = document.getElementById('resultMsg');
+    const finalScore = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+
+    function initQuiz() {
+        currentIdx = 0;
+        score = 0;
+        quizArea.style.display = 'block';
+        resultArea.style.display = 'none';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        answered = false;
+        nextBtn.style.display = 'none';
+        
+        const q = questions[currentIdx];
+        
+        // Progress
+        progressBar.style.width = `${(currentIdx / questions.length) * 100}%`;
+
+        // Text
+        ruText.textContent = q.ru;
+
+        // Mix Options (Correct + Distractors)
+        let options = [q.correct, ...q.distractors];
+        // Shuffle options
+        options.sort(() => Math.random() - 0.5);
+
+        // Render Buttons
+        optionsContainer.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.onclick = () => checkAnswer(btn, opt);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, val) {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentIdx];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+
+        if (val === q.correct) {
+            // Correct
+            btn.classList.add('correct');
+            score++;
+        } else {
+            // Wrong
+            btn.classList.add('wrong');
+            // Highlight Correct
+            allBtns.forEach(b => {
+                if(b.textContent === q.correct) b.classList.add('correct');
+            });
+        }
+
+        allBtns.forEach(b => b.disabled = true);
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        quizArea.style.display = 'none';
+        resultArea.style.display = 'block';
+        progressBar.style.width = '100%';
+        finalScore.textContent = `${score} / ${questions.length}`;
+
+        // Feedback Logic
+        if (score === questions.length) {
+            finalScore.className = "score score-perfect";
+            resultTitle.textContent = "Perfekt!";
+            resultTitle.style.color = "#2e7d32";
+            resultMsg.textContent = "Du hast alle Nuancen richtig verstanden. Hervorragend!";
+            restartBtn.textContent = "Neustart";
+        } else {
+            finalScore.className = "score score-average";
+            resultTitle.textContent = "Übung beendet";
+            resultTitle.style.color = "#333";
+            resultMsg.textContent = "Noch einmal wiederholen?";
+            restartBtn.textContent = "Wiederholen";
+        }
+    }
+
+    function restartQuiz() {
+        initQuiz();
+    }
+
+    // Start
+    initQuiz();
+</script>
+
+</body>
+</html>
