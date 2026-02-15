@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Lückentext (Präfixe)</title>
+    <style>
+        :root {
+            --primary: #3f51b5; /* Indigo */
+            --primary-light: #c5cae9;
+            --success: #4caf50;
+            --error: #f44336;
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #666;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        .intro-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .cloze-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .sentence-row {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.15rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .sentence-row:last-child {
+            border-bottom: none;
+        }
+
+        .num {
+            font-weight: bold;
+            color: #999;
+            min-width: 25px;
+        }
+
+        .german-hint {
+            display: block;
+            width: 100%;
+            font-size: 0.9rem;
+            color: #78909c;
+            font-style: italic;
+            margin-top: 5px;
+            padding-left: 33px; /* Align with text */
+        }
+
+        /* Custom Select Styling */
+        select.cloze-select {
+            appearance: none;
+            background-color: #f0f2f5;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            padding: 5px 30px 5px 10px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2082.2c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right .7em top 50%;
+            background-size: .65em auto;
+            min-width: 160px;
+        }
+
+        select.cloze-select:hover {
+            border-color: var(--primary);
+        }
+
+        select.cloze-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+        }
+
+        /* Feedback States */
+        select.cloze-select.correct {
+            border-color: var(--success);
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%234caf50%22%3E%3Cpath%20d%3D%22M9%2016.17L4.83%2012l-1.42%201.41L9%2019%2021%207l-1.41-1.41z%22%2F%3E%3C%2Fsvg%3E");
+            background-size: 1.2em auto;
+        }
+
+        select.cloze-select.wrong {
+            border-color: var(--error);
+            background-color: #ffebee;
+            color: #c62828;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23f44336%22%3E%3Cpath%20d%3D%22M19%206.41L17.59%205%2012%2010.59%206.41%205%205%206.41%2010.59%2012%205%2017.59%206.41%2019%2012%2013.41%2017.59%2019%2019%2017.59%2013.41%2012z%22%2F%3E%3C%2Fsvg%3E");
+            background-size: 1.2em auto;
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-reset { background-color: #ff9800; }
+        .btn-solve { background-color: var(--primary); }
+
+        @media (max-width: 600px) {
+            .sentence-row {
+                font-size: 1rem;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Lückentext: Präfixe</h1>
+    <h2>Wählen Sie das passende Verb aus der Liste, um den Satz zu vervollständigen.</h2>
+
+    <div class="intro-box">
+        <strong>Anleitung:</strong> Klicken Sie auf die Lücke (das Auswahlfeld) und wählen Sie das richtige Wort.
+        Das Feld färbt sich sofort <span style="color: var(--success); font-weight: bold;">grün</span> (richtig) oder <span style="color: var(--error); font-weight: bold;">rot</span> (falsch).
+    </div>
+
+    <div class="cloze-container">
+
+        <!-- Satz 1 -->
+        <div class="sentence-row">
+            <span class="num">1.</span>
+            <span>Я хочу</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'zarabotat')">
+                <option value="">...</option>
+                <option value="porabotat">поработать</option>
+                <option value="zarabotat">заработать</option>
+                <option value="srabotat">сработать</option>
+            </select>
+            <span>много денег.</span>
+            <span class="german-hint">(Ich will viel Geld verdienen.)</span>
+        </div>
+
+        <!-- Satz 2 -->
+        <div class="sentence-row">
+            <span class="num">2.</span>
+            <span>Мой отец</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'prorabotal')">
+                <option value="">...</option>
+                <option value="prorabotal">проработал</option>
+                <option value="otrabotal">отработал</option>
+                <option value="zarabotal">заработал</option>
+            </select>
+            <span>на заводе 40 лет.</span>
+            <span class="german-hint">(Mein Vater hat 40 Jahre in der Fabrik gearbeitet.)</span>
+        </div>
+
+        <!-- Satz 3 -->
+        <div class="sentence-row">
+            <span class="num">3.</span>
+            <span>Инженеры должны</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'razrabotat')">
+                <option value="">...</option>
+                <option value="obrabotat">обработать</option>
+                <option value="dorabotat">доработать</option>
+                <option value="razrabotat">разработать</option>
+            </select>
+            <span>новый план.</span>
+            <span class="german-hint">(Die Ingenieure müssen einen neuen Plan entwickeln.)</span>
+        </div>
+
+        <!-- Satz 4 -->
+        <div class="sentence-row">
+            <span class="num">4.</span>
+            <span>Я устал. Я сегодня так</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'zarabotalsya')">
+                <option value="">...</option>
+                <option value="srabotalsya">сработался</option>
+                <option value="zarabotalsya">заработался</option>
+                <option value="narabotalsya">наработался</option>
+            </select>
+            <span>, что забыл про обед.</span>
+            <span class="german-hint">(Ich bin müde. Ich habe mich heute so in die Arbeit vertieft, dass ich das Mittagessen vergessen habe.)</span>
+        </div>
+
+        <!-- Satz 5 -->
+        <div class="sentence-row">
+            <span class="num">5.</span>
+            <span>Студентом он</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'podrabatyval')">
+                <option value="">...</option>
+                <option value="pererabatyval">перерабатывал</option>
+                <option value="podrabatyval">подрабатывал</option>
+                <option value="vyrabatyval">вырабатывал</option>
+            </select>
+            <span>официантом.</span>
+            <span class="german-hint">(Als Student hat er als Kellner gejobbt/dazuverdient.)</span>
+        </div>
+
+        <!-- Satz 6 -->
+        <div class="sentence-row">
+            <span class="num">6.</span>
+            <span>Твой план отличный, он</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'srabotal')">
+                <option value="">...</option>
+                <option value="zarabotal">заработал</option>
+                <option value="srabotal">сработал</option>
+                <option value="porabotal">поработал</option>
+            </select>
+            <span>!</span>
+            <span class="german-hint">(Dein Plan ist toll, er hat funktioniert!)</span>
+        </div>
+
+        <!-- Satz 7 -->
+        <div class="sentence-row">
+            <span class="num">7.</span>
+            <span>Статья почти готова, нужно её только немного</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'dorabotat')">
+                <option value="">...</option>
+                <option value="otrabotat">отработать</option>
+                <option value="dorabotat">доработать</option>
+                <option value="razrabotat">разработать</option>
+            </select>
+            <span>.</span>
+            <span class="german-hint">(Der Artikel ist fast fertig, man muss ihn nur noch etwas überarbeiten/fertigstellen.)</span>
+        </div>
+
+        <!-- Satz 8 -->
+        <div class="sentence-row">
+            <span class="num">8.</span>
+            <span>Этот завод</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'pererabatyvaet')">
+                <option value="">...</option>
+                <option value="pererabatyvaet">перерабатывает</option>
+                <option value="zarabatyvaet">зарабатывает</option>
+                <option value="vyrabatyvaet">вырабатывает</option>
+            </select>
+            <span>пластик.</span>
+            <span class="german-hint">(Dieses Werk recycelt/verarbeitet Plastik.)</span>
+        </div>
+
+        <!-- Satz 9 -->
+        <div class="sentence-row">
+            <span class="num">9.</span>
+            <span>Мы с коллегами отлично</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'srabotalis')">
+                <option value="">...</option>
+                <option value="srabotalis">сработались</option>
+                <option value="zarabotalis">заработались</option>
+                <option value="dorabotalis">доработались</option>
+            </select>
+            <span>.</span>
+            <span class="german-hint">(Wir und die Kollegen kommen beruflich super miteinander aus.)</span>
+        </div>
+
+        <!-- Satz 10 -->
+        <div class="sentence-row">
+            <span class="num">10.</span>
+            <span>У меня есть время, я могу ещё</span>
+            <select class="cloze-select" onchange="checkCloze(this, 'porabotat')">
+                <option value="">...</option>
+                <option value="porabotat">поработать</option>
+                <option value="prorabotat">проработать</option>
+                <option value="otrabotat">отработать</option>
+            </select>
+            <span>.</span>
+            <span class="german-hint">(Ich habe Zeit, ich kann noch ein bisschen arbeiten.)</span>
+        </div>
+
+        <div class="controls">
+            <button class="btn-reset" onclick="resetAll()">Alle zurücksetzen</button>
+            <button class="btn-solve" onclick="solveAll()">Lösung anzeigen</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function checkCloze(selectElement, correctValue) {
+        const val = selectElement.value;
+        
+        // Remove classes
+        selectElement.classList.remove('correct', 'wrong');
+
+        if (val === "") {
+            return; // Neutral state
+        }
+
+        if (val === correctValue) {
+            selectElement.classList.add('correct');
+        } else {
+            selectElement.classList.add('wrong');
+        }
+    }
+
+    function resetAll() {
+        const selects = document.querySelectorAll('.cloze-select');
+        selects.forEach(sel => {
+            sel.value = "";
+            sel.classList.remove('correct', 'wrong');
+        });
+    }
+
+    function solveAll() {
+        const selects = document.querySelectorAll('.cloze-select');
+        selects.forEach(sel => {
+            // Find the correct value from the onchange attribute content (a bit hacky but works for this simple structure)
+            // Or simpler: We know the correct value is one of the options.
+            // Let's rely on the structure: The onchange string contains the correct value.
+            
+            const onchangeStr = sel.getAttribute('onchange');
+            // Extract 'value' from checkCloze(this, 'value')
+            const match = onchangeStr.match(/'([^']+)'/);
+            
+            if (match && match[1]) {
+                sel.value = match[1];
+                checkCloze(sel, match[1]); // Trigger visual update
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
