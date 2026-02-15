@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Zeitformen bilden</title>
+    <style>
+        :root {
+            --primary: #009688; /* Teal */
+            --primary-dark: #00796b;
+            --accent: #ff9800; /* Orange */
+            --bg: #eef2f3;
+            --card-bg: #ffffff;
+            --text: #333;
+            --success: #4caf50;
+            --error: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #607d8b;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        /* Grammar Rule Box */
+        .grammar-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid var(--accent);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .grammar-title {
+            font-weight: bold;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Quiz Card */
+        .quiz-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verb-infinitive {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .verb-aspect {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            margin-bottom: 20px;
+            display: inline-block;
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .task-instruction {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #455a64;
+            background-color: #e0f2f1;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #cfd8dc;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background-color: #e0f2f1;
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        /* Feedback States */
+        .option-btn.correct {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+            animation: pulse 0.4s;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--error);
+            border-color: var(--error);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Explanation / Feedback Text */
+        .feedback-message {
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 20px;
+            font-size: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feedback-message.visible { opacity: 1; }
+        .text-correct { color: var(--success); }
+        .text-wrong { color: var(--error); }
+
+        /* Next Button */
+        .btn-next {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none; /* Hidden until answered */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .btn-next:hover {
+            background-color: var(--primary);
+        }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+        .btn-restart {
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (min-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Zeitformen bilden</h1>
+    <h2>Wählen Sie die korrekte Form (Präteritum oder Futur).</h2>
+
+    <div class="grammar-box" id="grammarBox">
+        <span class="grammar-title">Kurzregel:</span>
+        • <strong>NSV (Unvollendet):</strong> Futur mit "быть" (z.B. буду работать).<br>
+        • <strong>SV (Vollendet):</strong> Einfaches Futur (z.B. заработаю).<br>
+        • <strong>Präteritum:</strong> Endung hängt vom Geschlecht ab (-л, -ла, -ло, -ли).
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen">
+        <div class="quiz-card">
+            <span class="verb-infinitive" id="verbDisplay">Loading...</span>
+            <span class="verb-aspect" id="aspectDisplay">SV</span>
+            
+            <div class="task-instruction" id="taskDisplay">
+                Bilden Sie das Futur (Ich)
+            </div>
+
+            <div class="options-grid" id="optionsContainer">
+                <!-- Buttons injected by JS -->
+            </div>
+
+            <div class="feedback-message" id="feedbackMsg"></div>
+            
+            <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Nächste Frage</button>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="result-screen">
+        <div class="quiz-card">
+            <h2>Übung abgeschlossen!</h2>
+            <div class="score-display" id="finalScore">0 / 0</div>
+            <p>Sie haben die Formen gebildet.</p>
+            <button class="btn-restart" onclick="restartQuiz()">Noch einmal üben</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Database of questions
+    // Types: past_m (masc), past_f (fem), past_n (neut), past_pl (plural), fut_1s (ich), fut_2s (du), fut_3pl (sie pl)
+    const questions = [
+        {
+            verb: "заработать",
+            aspect: "SV (Vollendet)",
+            task: "Präteritum (Er / Männlich)",
+            correct: "заработал",
+            options: ["зарабатывал", "заработал", "заработает", "заработала"],
+            hint: "SV Präteritum: Stamm + л."
+        },
+        {
+            verb: "подрабатывать",
+            aspect: "NSV (Unvollendet)",
+            task: "Futur (Wir)",
+            correct: "будем подрабатывать",
+            options: ["подработаем", "подрабатываем", "будем подрабатывать", "будем подработать"],
+            hint: "NSV Futur: Form von 'быть' + Infinitiv."
+        },
+        {
+            verb: "сработаться",
+            aspect: "SV (Vollendet / Reflexiv)",
+            task: "Präteritum (Sie / Plural)",
+            correct: "сработались",
+            options: ["сработался", "срабатывались", "сработались", "сработаться"],
+            hint: "Reflexiv Plural: Endung -лись."
+        },
+        {
+            verb: "разработать",
+            aspect: "SV (Vollendet)",
+            task: "Futur (Sie / Plural)",
+            correct: "разработают",
+            options: ["будут разработать", "разрабатывают", "разработают", "разработали"],
+            hint: "SV Futur: Einfache Konjugation (wie Präsens)."
+        },
+        {
+            verb: "отрабатывать",
+            aspect: "NSV (Unvollendet)",
+            task: "Präteritum (Sie / Weiblich)",
+            correct: "отрабатывала",
+            options: ["отработала", "отрабатывала", "отрабатывал", "будет отрабатывать"],
+            hint: "NSV Präteritum: Stamm + ла."
+        },
+        {
+            verb: "выработать",
+            aspect: "SV (Vollendet)",
+            task: "Futur (Ich)",
+            correct: "выработаю",
+            options: ["буду выработать", "вырабатываю", "выработаю", "выработал"],
+            hint: "SV Futur: Einfache Form (kein 'буду')."
+        },
+        {
+            verb: "перерабатывать",
+            aspect: "NSV (Unvollendet)",
+            task: "Futur (Du)",
+            correct: "будешь перерабатывать",
+            options: ["переработаешь", "перерабатываешь", "будешь перерабатывать", "будешь переработать"],
+            hint: "NSV Futur: 'будешь' + Infinitiv."
+        },
+        {
+            verb: "доработать",
+            aspect: "SV (Vollendet)",
+            task: "Präteritum (Es / Sächlich)",
+            correct: "доработало",
+            options: ["дорабатывало", "доработало", "доработает", "доработали"],
+            hint: "Sächlich Präteritum: Endung -ло."
+        },
+        {
+            verb: "проработать",
+            aspect: "SV (Vollendet)",
+            task: "Präteritum (Er / Männlich)",
+            correct: "проработал",
+            options: ["прорабатывал", "проработаю", "проработал", "проработала"],
+            hint: "SV Präteritum: Stamm + л."
+        },
+        {
+            verb: "нарабатывать",
+            aspect: "NSV (Unvollendet)",
+            task: "Futur (Ich)",
+            correct: "буду нарабатывать",
+            options: ["наработаю", "буду наработать", "буду нарабатывать", "нарабатываю"],
+            hint: "NSV Futur: 'буду' + Infinitiv."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let isAnswered = false;
+
+    // Elements
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const verbDisplay = document.getElementById('verbDisplay');
+    const aspectDisplay = document.getElementById('aspectDisplay');
+    const taskDisplay = document.getElementById('taskDisplay');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const finalScore = document.getElementById('finalScore');
+
+    function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizScreen.style.display = 'block';
+        resultScreen.style.display = 'none';
+        document.getElementById('grammarBox').style.display = 'block';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        isAnswered = false;
+        nextBtn.style.display = 'none';
+        feedbackMsg.classList.remove('visible');
+        feedbackMsg.innerHTML = '';
+        
+        const q = questions[currentQuestionIndex];
+        
+        // Update Progress
+        const progress = ((currentQuestionIndex) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        // Set Text
+        verbDisplay.textContent = q.verb;
+        aspectDisplay.textContent = q.aspect;
+        taskDisplay.textContent = q.task;
+
+        // Render Options (Shuffle them)
+        optionsContainer.innerHTML = '';
+        const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.onclick = () => checkAnswer(btn, opt);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, selectedOption) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const q = questions[currentQuestionIndex];
+        const buttons = optionsContainer.querySelectorAll('.option-btn');
+
+        if (selectedOption === q.correct) {
+            // Correct
+            btn.classList.add('correct');
+            feedbackMsg.innerHTML = `<span class="text-correct">Richtig!</span> ${q.hint}`;
+            score++;
+        } else {
+            // Wrong
+            btn.classList.add('wrong');
+            feedbackMsg.innerHTML = `<span class="text-wrong">Falsch.</span> Die richtige Form ist: <strong>${q.correct}</strong>.<br><small>${q.hint}</small>`;
+            
+            // Highlight correct answer
+            buttons.forEach(b => {
+                if (b.textContent === q.correct) b.classList.add('correct');
+            });
+        }
+
+        feedbackMsg.classList.add('visible');
+        nextBtn.style.display = 'inline-block';
+        
+        // Disable all buttons
+        buttons.forEach(b => b.disabled = true);
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        quizScreen.style.display = 'none';
+        document.getElementById('grammarBox').style.display = 'none';
+        resultScreen.style.display = 'block';
+        progressBar.style.width = '100%';
+        finalScore.textContent = `${score} / ${questions.length}`;
+    }
+
+    function restartQuiz() {
+        startQuiz();
+    }
+
+    // Initialize
+    startQuiz();
+
+</script>
+
+</body>
+</html>
