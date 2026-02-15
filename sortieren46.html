@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Geld oder Mechanik?</title>
+    <style>
+        :root {
+            --money-color: #2e7d32; /* Green */
+            --money-bg: #e8f5e9;
+            --start-color: #1565c0; /* Blue */
+            --start-bg: #e3f2fd;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333;
+            --error: #c62828;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            color: #455a64;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #78909c;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #607d8b;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Game Area */
+        .game-area {
+            position: relative;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* The Card */
+        .card-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sentence {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #37474f;
+        }
+
+        .highlight {
+            color: #ff9800; /* Highlight the word zarabotat */
+        }
+
+        .hint {
+            font-style: italic;
+            color: #90a4ae;
+            font-size: 1rem;
+        }
+
+        /* Sorting Buttons (Buckets) */
+        .buckets-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .bucket-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 20px 10px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .bucket-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Money Style */
+        .bucket-money {
+            background-color: var(--money-bg);
+            border: 2px solid var(--money-color);
+            color: var(--money-color);
+        }
+        .bucket-money .icon { font-size: 2.5rem; }
+        .bucket-money .label { font-weight: bold; font-size: 1.1rem; }
+
+        /* Start Style */
+        .bucket-start {
+            background-color: var(--start-bg);
+            border: 2px solid var(--start-color);
+            color: var(--start-color);
+        }
+        .bucket-start .icon { font-size: 2.5rem; }
+        .bucket-start .label { font-weight: bold; font-size: 1.1rem; }
+
+        /* Feedback Overlay inside Card */
+        .card-feedback {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            background: rgba(255,255,255,0.9);
+        }
+        .feedback-correct { color: var(--money-color); } /* Or generic green */
+        .feedback-wrong { color: var(--error); }
+
+        /* Animations */
+        .slide-left { transform: translateX(-50px) rotate(-5deg); opacity: 0; }
+        .slide-right { transform: translateX(50px) rotate(5deg); opacity: 0; }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .score { font-size: 3rem; margin: 20px 0; font-weight: bold; }
+        .btn-restart {
+            background-color: #607d8b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .sentence { font-size: 1.3rem; }
+            .buckets-container { gap: 10px; }
+            .bucket-btn { padding: 15px 5px; }
+            .bucket-money .icon, .bucket-start .icon { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Sortieren: за-</h1>
+    <h2>Gehört der Satz zum Thema "Geld" oder "Start/Mechanik"?</h2>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Game Area -->
+    <div id="gameArea" class="game-area">
+        
+        <!-- The Card -->
+        <div class="card-container" id="card">
+            <div class="sentence" id="sentenceText">Laden...</div>
+            <div class="hint" id="hintText">...</div>
+            
+            <div class="card-feedback" id="feedback"></div>
+        </div>
+
+        <!-- Sorting Buckets -->
+        <div class="buckets-container">
+            <!-- Left: Money -->
+            <button class="bucket-btn bucket-money" onclick="sortCard('money')">
+                <span class="icon">💰</span>
+                <span class="label">Finanzen / Geld</span>
+            </button>
+
+            <!-- Right: Start -->
+            <button class="bucket-btn bucket-start" onclick="sortCard('start')">
+                <span class="icon">⚙️</span>
+                <span class="label">Start / Mechanik</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-screen">
+        <h2 id="resultTitle">Ergebnis</h2>
+        <p id="resultMsg">...</p>
+        <div class="score" id="finalScore"></div>
+        <button class="btn-restart" id="restartBtn" onclick="restartGame()">Neustart</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        {
+            text: "Я <span class='highlight'>заработал</span> 5000 рублей.",
+            hint: "(Ich habe 5000 Rubel verdient.)",
+            category: "money"
+        },
+        {
+            text: "Мотор наконец <span class='highlight'>заработал</span>.",
+            hint: "(Der Motor ist endlich angesprungen.)",
+            category: "start"
+        },
+        {
+            text: "Сколько ты <span class='highlight'>зарабатываешь</span>?",
+            hint: "(Wie viel verdienst du?)",
+            category: "money"
+        },
+        {
+            text: "Мой компьютер снова <span class='highlight'>заработал</span>!",
+            hint: "(Mein Computer funktioniert wieder!)",
+            category: "start"
+        },
+        {
+            text: "Она хочет <span class='highlight'>заработать</span> на машину.",
+            hint: "(Sie möchte für ein Auto verdienen.)",
+            category: "money"
+        },
+        {
+            text: "Внезапно <span class='highlight'>заработала</span> сирена.",
+            hint: "(Plötzlich ging die Sirene los.)",
+            category: "start"
+        },
+        {
+            text: "Эта схема <span class='highlight'>заработала</span>.",
+            hint: "(Dieses Schema/System hat angefangen zu funktionieren.)",
+            category: "start"
+        },
+        {
+            text: "Студенты любят <span class='highlight'>зарабатывать</span>.",
+            hint: "(Studenten mögen es, Geld zu verdienen.)",
+            category: "money"
+        },
+        {
+            text: "Сердце бешено <span class='highlight'>заработало</span>.",
+            hint: "(Das Herz fing an, wild zu schlagen/arbeiten.)",
+            category: "start"
+        },
+        {
+            text: "Это хорошая возможность <span class='highlight'>заработать</span>.",
+            hint: "(Das ist eine gute Möglichkeit zu verdienen.)",
+            category: "money"
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let isAnimating = false;
+
+    const sentenceText = document.getElementById('sentenceText');
+    const hintText = document.getElementById('hintText');
+    const progressBar = document.getElementById('progressBar');
+    const card = document.getElementById('card');
+    const feedback = document.getElementById('feedback');
+    const gameArea = document.getElementById('gameArea');
+    const resultArea = document.getElementById('resultArea');
+    
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMsg = document.getElementById('resultMsg');
+    const finalScore = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+
+    function initGame() {
+        currentIdx = 0;
+        score = 0;
+        gameArea.style.display = 'flex';
+        resultArea.style.display = 'none';
+        
+        // Reset Card Style
+        card.className = "card-container";
+        card.style.opacity = 1;
+        card.style.transform = "none";
+        
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentIdx >= questions.length) {
+            endGame();
+            return;
+        }
+
+        const q = questions[currentIdx];
+        progressBar.style.width = `${(currentIdx / questions.length) * 100}%`;
+        
+        sentenceText.innerHTML = q.text;
+        hintText.textContent = q.hint;
+        
+        // Reset Feedback
+        feedback.style.opacity = 0;
+        feedback.className = "card-feedback";
+        isAnimating = false;
+    }
+
+    function sortCard(selectedCategory) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const q = questions[currentIdx];
+        const isCorrect = (selectedCategory === q.category);
+
+        if (isCorrect) {
+            score++;
+            feedback.innerHTML = "✅";
+            feedback.style.color = "var(--money-color)";
+        } else {
+            feedback.innerHTML = "❌";
+            feedback.style.color = "var(--error)";
+        }
+        
+        feedback.style.opacity = 1;
+
+        // Animate Card out
+        setTimeout(() => {
+            if (selectedCategory === 'money') {
+                card.classList.add('slide-left'); // Visual move towards left bucket
+            } else {
+                card.classList.add('slide-right'); // Visual move towards right bucket
+            }
+        }, 300);
+
+        // Load next
+        setTimeout(() => {
+            currentIdx++;
+            // Reset card position instantly while invisible
+            card.style.transition = 'none';
+            card.classList.remove('slide-left', 'slide-right');
+            card.style.opacity = 0;
+            card.style.transform = "scale(0.9)";
+            
+            // Prepare next content
+            if (currentIdx < questions.length) {
+                const nextQ = questions[currentIdx];
+                sentenceText.innerHTML = nextQ.text;
+                hintText.textContent = nextQ.hint;
+                feedback.style.opacity = 0;
+                
+                // Animate In
+                setTimeout(() => {
+                    card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+                    card.style.opacity = 1;
+                    card.style.transform = "scale(1)";
+                    isAnimating = false;
+                    progressBar.style.width = `${(currentIdx / questions.length) * 100}%`;
+                }, 50);
+            } else {
+                endGame();
+            }
+        }, 700);
+    }
+
+    function endGame() {
+        gameArea.style.display = 'none';
+        resultArea.style.display = 'block';
+        progressBar.style.width = '100%';
+        finalScore.textContent = `${score} / ${questions.length}`;
+
+        if (score === 10) {
+            resultTitle.textContent = "Perfekt!";
+            resultTitle.style.color = "#2e7d32";
+            resultMsg.textContent = "Du hast alles richtig zugeordnet. Großartig!";
+            restartBtn.textContent = "Neustart";
+        } else {
+            resultTitle.textContent = "Ergebnis";
+            resultTitle.style.color = "#333";
+            resultMsg.textContent = "Noch einmal wiederholen?";
+            restartBtn.textContent = "Wiederholen";
+        }
+    }
+
+    function restartGame() {
+        initGame();
+    }
+
+    // Start
+    initGame();
+</script>
+
+</body>
+</html>
