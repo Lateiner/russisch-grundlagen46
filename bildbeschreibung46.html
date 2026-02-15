@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Bildbeschreibung (Satzbau)</title>
+    <style>
+        :root {
+            --primary: #9c27b0; /* Purple */
+            --primary-light: #e1bee7;
+            --secondary: #ff5722; /* Deep Orange */
+            --bg: #f3e5f5;
+            --card-bg: #ffffff;
+            --text: #333;
+            --correct-bg: #c8e6c9;
+            --correct-border: #2e7d32;
+            --wrong-bg: #ffcdd2;
+            --wrong-border: #c62828;
+            --solve-color: #00bcd4; /* Cyan */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #555;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Main Card */
+        .task-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 400px;
+            position: relative;
+        }
+
+        /* Image / Scenario Area */
+        .scenario-box {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .emoji-display {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounceIn 0.5s;
+        }
+
+        .context-text {
+            font-style: italic;
+            color: #666;
+            background: #f5f5f5;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Sentence Building Area (The "Input") */
+        .sentence-area {
+            width: 100%;
+            min-height: 60px;
+            border-bottom: 3px solid #ccc;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px;
+            transition: border-color 0.3s;
+        }
+
+        .sentence-area.correct { border-bottom-color: var(--correct-border); }
+        .sentence-area.wrong { border-bottom-color: var(--wrong-border); }
+        .sentence-area.solved { border-bottom-color: var(--solve-color); border-bottom-style: dashed; }
+
+        /* Word Bank (The Options) */
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        /* Word Chips */
+        .word-chip {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .word-chip:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .word-chip:active {
+            transform: scale(0.95);
+        }
+
+        /* State: Used in sentence */
+        .word-chip.used {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0);
+            width: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+        }
+
+        /* State: Placed in sentence area */
+        .word-chip.placed {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .word-chip.placed:hover {
+            background-color: #7b1fa2; /* Darker purple */
+        }
+
+        /* Feedback Message */
+        .feedback-msg {
+            font-size: 1.2rem;
+            font-weight: bold;
+            height: 30px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .text-correct { color: var(--correct-border); }
+        .text-wrong { color: var(--wrong-border); }
+        .text-info { color: var(--solve-color); }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+            flex-grow: 1;
+            max-width: 200px;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--correct-border); }
+        .btn-clear { background-color: #9e9e9e; }
+        .btn-solve { background-color: var(--solve-color); }
+        .btn-next { background-color: var(--secondary); display: none; }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .score { font-size: 3rem; margin: 20px 0; font-weight: bold; color: var(--primary); }
+        .btn-restart { background-color: var(--primary); }
+
+        @media (max-width: 600px) {
+            .emoji-display { font-size: 3rem; }
+            .word-chip { font-size: 1rem; padding: 6px 12px; }
+            .controls { flex-direction: column; align-items: stretch; }
+            button { max-width: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bildbeschreibung</h1>
+    <h2>Bauen Sie den passenden russischen Satz zum Bild.</h2>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quizArea" class="task-card">
+        
+        <!-- Scenario -->
+        <div class="scenario-box">
+            <span class="emoji-display" id="emojiDisplay">🤔</span>
+            <div class="context-text" id="contextText">Laden...</div>
+        </div>
+
+        <!-- Feedback -->
+        <div class="feedback-msg" id="feedbackMsg"></div>
+
+        <!-- Sentence Construction Area -->
+        <div class="sentence-area" id="sentenceArea">
+            <span style="color:#ccc; line-height: 40px;">(Tippen Sie auf die Wörter unten)</span>
+        </div>
+
+        <!-- Word Bank -->
+        <div class="word-bank" id="wordBank">
+            <!-- Buttons injected here -->
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn-clear" id="clearBtn" onclick="resetCurrentSentence()">Leeren</button>
+            <button class="btn-solve" id="solveBtn" onclick="showSolution()">Lösung anzeigen</button>
+            <button class="btn-check" id="checkBtn" onclick="checkSentence()">Prüfen</button>
+            <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Weiter</button>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-screen">
+        <h2 id="resultTitle">Ergebnis</h2>
+        <p id="resultMsg">...</p>
+        <div class="score" id="finalScore"></div>
+        <button class="btn-restart" id="restartBtn" onclick="restartQuiz()">Neustart</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        {
+            emoji: "😫 💼",
+            context: "Er ist total erschöpft, weil er zu viel gearbeitet hat.",
+            sentence: ["Он", "сегодня", "переработал"],
+            scramble: ["переработал", "Он", "сегодня", "заработал", "в"] 
+        },
+        {
+            emoji: "💰 🤑",
+            context: "Sie hat sehr viel Geld verdient.",
+            sentence: ["Она", "заработала", "много", "денег"],
+            scramble: ["денег", "много", "Она", "заработала", "поработала"]
+        },
+        {
+            emoji: "📱 ✅",
+            context: "Hurra! Mein Telefon funktioniert endlich wieder.",
+            sentence: ["Мой", "телефон", "наконец", "заработал"],
+            scramble: ["заработал", "телефон", "Мой", "наконец", "сработал"]
+        },
+        {
+            emoji: "🤝 🏢",
+            context: "Wir (mit Kollegen) haben uns gut eingespielt.",
+            sentence: ["Мы", "с", "коллегами", "сработались"],
+            scramble: ["с", "сработались", "Мы", "коллегами", "заработались"]
+        },
+        {
+            emoji: "♻️ 📄",
+            context: "Diese Fabrik verarbeitet (recycelt) Müll.",
+            sentence: ["Этот", "завод", "перерабатывает", "мусор"],
+            scramble: ["перерабатывает", "мусор", "завод", "Этот", "разрабатывает"]
+        },
+        {
+            emoji: "📝 💡",
+            context: "Wir müssen einen neuen Plan entwickeln.",
+            sentence: ["Нужно", "разработать", "новый", "план"],
+            scramble: ["новый", "план", "разработать", "Нужно", "обработать"]
+        },
+        {
+            emoji: "🥊 🏋️",
+            context: "Der Sportler übt (perfektioniert) den Schlag.",
+            sentence: ["Спортсмен", "отрабатывает", "удар"],
+            scramble: ["удар", "отрабатывает", "Спортсмен", "зарабатывает"]
+        },
+        {
+            emoji: "🍕 🚲",
+            context: "Er jobbt (dazuverdienen) in einem Café.",
+            sentence: ["Он", "подрабатывает", "в", "кафе"],
+            scramble: ["кафе", "в", "подрабатывает", "Он", "прорабатывает"]
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    // Tracks the user's current constructed sentence (array of word strings)
+    let userSentence = [];
+    // Tracks the current pool of words available
+    let currentPool = [];
+
+    const emojiDisplay = document.getElementById('emojiDisplay');
+    const contextText = document.getElementById('contextText');
+    const sentenceArea = document.getElementById('sentenceArea');
+    const wordBank = document.getElementById('wordBank');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+    
+    const clearBtn = document.getElementById('clearBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const solveBtn = document.getElementById('solveBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+
+    const quizArea = document.getElementById('quizArea');
+    const resultArea = document.getElementById('resultArea');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMsg = document.getElementById('resultMsg');
+    const finalScore = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+
+    function initQuiz() {
+        currentIdx = 0;
+        score = 0;
+        quizArea.style.display = 'flex';
+        resultArea.style.display = 'none';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        // Buttons visibility
+        nextBtn.style.display = 'none';
+        checkBtn.style.display = 'inline-block';
+        clearBtn.style.display = 'inline-block';
+        solveBtn.style.display = 'inline-block';
+        
+        feedbackMsg.textContent = "";
+        sentenceArea.className = "sentence-area";
+        
+        const q = questions[currentIdx];
+        
+        // Progress
+        progressBar.style.width = `${(currentIdx / questions.length) * 100}%`;
+
+        // Content
+        emojiDisplay.textContent = q.emoji;
+        contextText.textContent = q.context;
+
+        // Reset state
+        userSentence = [];
+        
+        // Prepare Scrambled Pool (Shuffle)
+        currentPool = [...q.scramble].sort(() => Math.random() - 0.5);
+
+        renderUI();
+    }
+
+    function renderUI() {
+        // 1. Render Sentence Area
+        sentenceArea.innerHTML = "";
+        if (userSentence.length === 0) {
+            sentenceArea.innerHTML = '<span style="color:#bbb; line-height: 40px; width:100%; text-align:center;">(Tippen Sie auf die Wörter)</span>';
+        } else {
+            userSentence.forEach((word, index) => {
+                const chip = document.createElement('div');
+                chip.className = "word-chip placed";
+                chip.textContent = word;
+                // Allow removing by clicking
+                // If the puzzle is already solved/shown, disable interaction
+                if (nextBtn.style.display !== 'inline-block') {
+                    chip.onclick = () => removeWord(index);
+                }
+                sentenceArea.appendChild(chip);
+            });
+        }
+
+        // 2. Render Word Bank
+        wordBank.innerHTML = "";
+        
+        let tempUsed = [...userSentence];
+
+        currentPool.forEach(word => {
+            const btn = document.createElement('div');
+            btn.className = "word-chip";
+            btn.textContent = word;
+            
+            // Check if this word is used
+            const usedIdx = tempUsed.indexOf(word);
+            if (usedIdx > -1) {
+                btn.classList.add('used');
+                tempUsed.splice(usedIdx, 1);
+            } else {
+                // If puzzle solved, disable clicks
+                if (nextBtn.style.display !== 'inline-block') {
+                    btn.onclick = () => addWord(word);
+                }
+            }
+            wordBank.appendChild(btn);
+        });
+    }
+
+    function addWord(word) {
+        userSentence.push(word);
+        renderUI();
+        feedbackMsg.textContent = "";
+        sentenceArea.className = "sentence-area";
+    }
+
+    function removeWord(index) {
+        userSentence.splice(index, 1);
+        renderUI();
+        feedbackMsg.textContent = "";
+        sentenceArea.className = "sentence-area";
+    }
+
+    function resetCurrentSentence() {
+        userSentence = [];
+        renderUI();
+        feedbackMsg.textContent = "";
+        sentenceArea.className = "sentence-area";
+    }
+
+    function checkSentence() {
+        const q = questions[currentIdx];
+        const correctStr = q.sentence.join(" ");
+        const userStr = userSentence.join(" ");
+
+        if (userStr === correctStr) {
+            // Correct
+            score++;
+            feedbackMsg.textContent = "Richtig!";
+            feedbackMsg.className = "feedback-msg text-correct";
+            sentenceArea.className = "sentence-area correct";
+            
+            finishLevel();
+        } else {
+            // Wrong
+            feedbackMsg.textContent = "Das ist nicht ganz richtig.";
+            feedbackMsg.className = "feedback-msg text-wrong";
+            sentenceArea.className = "sentence-area wrong";
+        }
+    }
+
+    function showSolution() {
+        const q = questions[currentIdx];
+        
+        // Auto-fill the correct sentence
+        userSentence = [...q.sentence];
+        
+        feedbackMsg.textContent = "Hier ist die Lösung (kein Punkt).";
+        feedbackMsg.className = "feedback-msg text-info";
+        sentenceArea.className = "sentence-area solved";
+        
+        renderUI(); // Re-render to disable chips
+        finishLevel();
+    }
+
+    function finishLevel() {
+        checkBtn.style.display = 'none';
+        clearBtn.style.display = 'none';
+        solveBtn.style.display = 'none';
+        nextBtn.style.display = 'inline-block';
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        quizArea.style.display = 'none';
+        resultArea.style.display = 'block';
+        progressBar.style.width = '100%';
+        finalScore.textContent = `${score} / ${questions.length}`;
+
+        if (score === questions.length) {
+            resultTitle.textContent = "Perfekt!";
+            resultTitle.style.color = "#2e7d32";
+            resultMsg.textContent = "Du hast alles richtig gemacht. Ein echtes Sprachtalent!";
+            restartBtn.textContent = "Neustart";
+        } else {
+            resultTitle.textContent = "Übung beendet";
+            resultTitle.style.color = "#333";
+            resultMsg.textContent = "Noch einmal wiederholen?";
+            restartBtn.textContent = "Wiederholen";
+        }
+    }
+
+    function restartQuiz() {
+        initQuiz();
+    }
+
+    // Start
+    initQuiz();
+</script>
+
+</body>
+</html>
