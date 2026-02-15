@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Aspekt-Paare bilden (12 Paare)</title>
+    <style>
+        :root {
+            --nsv-color: #3f51b5; /* Indigo */
+            --sv-color: #e91e63; /* Pink */
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #333;
+            --correct: #4caf50;
+            --wrong: #f44336;
+            --highlight: #ffeb3b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #546e7a;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        .intro-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 6px solid var(--nsv-color);
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .rule-hint {
+            background: #e8eaf6;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* Game Area */
+        .game-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .col-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 6px;
+            color: white;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-nsv { background-color: var(--nsv-color); }
+        .header-sv { background-color: var(--sv-color); }
+
+        /* Word Buttons */
+        .word-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 1.05rem;
+            transition: all 0.2s;
+            user-select: none;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.05);
+            font-weight: 500;
+        }
+
+        .word-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Interaction States */
+        .word-card.selected {
+            border-color: var(--nsv-color);
+            background-color: #e8eaf6;
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.3);
+            transform: scale(1.02);
+        }
+
+        /* Special style for SV selection to distinguish visually */
+        .column#col-sv .word-card.selected {
+            border-color: var(--sv-color);
+            background-color: #fce4ec;
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.3);
+        }
+
+        .word-card.matched {
+            background-color: var(--correct); /* Green */
+            color: white;
+            border-color: var(--correct);
+            cursor: default;
+            transform: none;
+            opacity: 0.9;
+            pointer-events: none; /* Disable clicking */
+        }
+        
+        .word-card.matched::after {
+            content: ' ✓';
+            font-weight: bold;
+        }
+
+        .word-card.shake {
+            animation: shake 0.5s;
+            border-color: var(--wrong);
+            background-color: #ffebee;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-reset { background-color: #ff9800; }
+        .btn-solve { background-color: #607d8b; }
+
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            .game-board {
+                gap: 8px;
+            }
+            .word-card {
+                font-size: 0.85rem; /* Smaller text for long words */
+                padding: 10px 4px;
+                word-break: break-word; /* Prevent overflow */
+            }
+            .col-header {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Aspekt-Paare bilden</h1>
+    <h2>Ordnen Sie das unvollendete Verb (NSV) dem vollendeten Verb (SV) zu.</h2>
+
+    <div class="intro-box">
+        <strong>Anleitung:</strong>
+        <ol style="margin-top:0; padding-left: 20px;">
+            <li>Tippen Sie links auf ein <strong>unvollendetes</strong> Verb (blau).</li>
+            <li>Tippen Sie rechts auf das passende <strong>vollendete</strong> Verb (pink).</li>
+        </ol>
+        <div class="rule-hint">
+            <strong>Grammatik-Tipp:</strong><br>
+            NSV endet oft auf <em>-ывать / -ивать</em> (Prozess/Wiederholung).<br>
+            SV endet oft auf <em>-ать</em> (Resultat/Einmalig).<br>
+            Achten Sie auch auf das Reflexivsuffix <em>-ся</em>.
+        </div>
+    </div>
+
+    <div class="game-board">
+        <!-- Left Column: NSV -->
+        <div class="column" id="col-nsv">
+            <div class="col-header header-nsv">NSV (Unvollendet)</div>
+            <!-- Items injected by JS -->
+        </div>
+
+        <!-- Right Column: SV -->
+        <div class="column" id="col-sv">
+            <div class="col-header header-sv">SV (Vollendet)</div>
+            <!-- Items injected by JS -->
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-reset" onclick="initGame()">Neu starten</button>
+        <button class="btn-solve" onclick="solveGame()">Lösung anzeigen</button>
+    </div>
+
+</div>
+
+<script>
+    // Data Structure: 12 Pairs
+    const verbs = [
+        { id: 'earn', nsv: 'зарабатывать', sv: 'заработать' },
+        { id: 'process', nsv: 'перерабатывать', sv: 'переработать' },
+        { id: 'develop', nsv: 'разрабатывать', sv: 'разработать' },
+        { id: 'finish', nsv: 'дорабатывать', sv: 'доработать' },
+        { id: 'job', nsv: 'подрабатывать', sv: 'подработать' },
+        { id: 'work_off', nsv: 'отрабатывать', sv: 'отработать' },
+        { id: 'trigger', nsv: 'срабатывать', sv: 'сработать' },
+        { id: 'generate', nsv: 'вырабатывать', sv: 'выработать' },
+        { id: 'study_depth', nsv: 'прорабатывать', sv: 'проработать' },
+        { id: 'accumulate', nsv: 'нарабатывать', sv: 'наработать' },
+        { id: 'treat_data', nsv: 'обрабатывать', sv: 'обработать' },
+        { id: 'get_along', nsv: 'срабатываться', sv: 'сработаться' }
+    ];
+
+    let selectedNSV = null; // Stores the currently selected element from Left
+    let selectedSV = null;  // Stores the currently selected element from Right
+
+    document.addEventListener('DOMContentLoaded', initGame);
+
+    function initGame() {
+        const colNSV = document.getElementById('col-nsv');
+        const colSV = document.getElementById('col-sv');
+        
+        // Clear columns (keep headers)
+        colNSV.innerHTML = '<div class="col-header header-nsv">NSV (Unvollendet)</div>';
+        colSV.innerHTML = '<div class="col-header header-sv">SV (Vollendet)</div>';
+
+        // Reset Selection
+        selectedNSV = null;
+        selectedSV = null;
+
+        // Shuffle Arrays
+        const shuffledNSV = [...verbs].sort(() => Math.random() - 0.5);
+        const shuffledSV = [...verbs].sort(() => Math.random() - 0.5);
+
+        // Render Left Column (NSV)
+        shuffledNSV.forEach(verb => {
+            const btn = document.createElement('div');
+            btn.className = 'word-card';
+            btn.textContent = verb.nsv;
+            btn.dataset.id = verb.id;
+            btn.dataset.type = 'nsv';
+            btn.onclick = () => handleCardClick(btn);
+            colNSV.appendChild(btn);
+        });
+
+        // Render Right Column (SV)
+        shuffledSV.forEach(verb => {
+            const btn = document.createElement('div');
+            btn.className = 'word-card';
+            btn.textContent = verb.sv;
+            btn.dataset.id = verb.id;
+            btn.dataset.type = 'sv';
+            btn.onclick = () => handleCardClick(btn);
+            colSV.appendChild(btn);
+        });
+    }
+
+    function handleCardClick(element) {
+        if (element.classList.contains('matched')) return;
+
+        // Determine column type
+        const type = element.dataset.type;
+
+        // Highlight logic
+        if (type === 'nsv') {
+            // If clicking a different NSV, deselect old one
+            if (selectedNSV && selectedNSV !== element) {
+                selectedNSV.classList.remove('selected');
+            }
+            // Toggle selection
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                selectedNSV = null;
+            } else {
+                element.classList.add('selected');
+                selectedNSV = element;
+            }
+        } else {
+            // Same for SV
+            if (selectedSV && selectedSV !== element) {
+                selectedSV.classList.remove('selected');
+            }
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                selectedSV = null;
+            } else {
+                element.classList.add('selected');
+                selectedSV = element;
+            }
+        }
+
+        // Check if both are selected
+        if (selectedNSV && selectedSV) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const id1 = selectedNSV.dataset.id;
+        const id2 = selectedSV.dataset.id;
+
+        if (id1 === id2) {
+            // MATCH!
+            markMatched(selectedNSV);
+            markMatched(selectedSV);
+            selectedNSV = null;
+            selectedSV = null;
+        } else {
+            // MISMATCH
+            visualError(selectedNSV);
+            visualError(selectedSV);
+            // Deselect both after short delay
+            setTimeout(() => {
+                if(selectedNSV) selectedNSV.classList.remove('selected');
+                if(selectedSV) selectedSV.classList.remove('selected');
+                selectedNSV = null;
+                selectedSV = null;
+            }, 500);
+        }
+    }
+
+    function markMatched(el) {
+        el.classList.remove('selected');
+        el.classList.add('matched');
+    }
+
+    function visualError(el) {
+        el.classList.add('shake');
+        setTimeout(() => {
+            el.classList.remove('shake');
+        }, 500);
+    }
+
+    function solveGame() {
+        // Reset game first to clean slate
+        const colNSV = document.getElementById('col-nsv');
+        const colSV = document.getElementById('col-sv');
+        
+        // We will just reload the lists sorted by ID so they align perfectly
+        colNSV.innerHTML = '<div class="col-header header-nsv">NSV (Unvollendet)</div>';
+        colSV.innerHTML = '<div class="col-header header-sv">SV (Vollendet)</div>';
+
+        // Use original order (not shuffled)
+        verbs.forEach(verb => {
+            // NSV
+            const btn1 = document.createElement('div');
+            btn1.className = 'word-card matched';
+            btn1.textContent = verb.nsv;
+            colNSV.appendChild(btn1);
+
+            // SV
+            const btn2 = document.createElement('div');
+            btn2.className = 'word-card matched';
+            btn2.textContent = verb.sv;
+            colSV.appendChild(btn2);
+        });
+    }
+
+</script>
+
+</body>
+</html>
