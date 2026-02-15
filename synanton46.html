@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Synonyme & Antonyme</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --synonym-color: #009688; /* Teal */
+            --antonym-color: #E91E63; /* Pink */
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333;
+            --correct: #4caf50;
+            --wrong: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #37474f;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #78909c;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        .intro-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+            border-left: 5px solid #607d8b;
+        }
+
+        /* Section Styles */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .header-synonym {
+            border-bottom: 3px solid var(--synonym-color);
+            color: var(--synonym-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-antonym {
+            border-bottom: 3px solid var(--antonym-color);
+            color: var(--antonym-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Match Rows */
+        .match-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fafafa;
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            gap: 15px;
+            flex-wrap: wrap; /* Important for mobile */
+        }
+
+        .static-item {
+            flex: 1;
+            min-width: 200px;
+            font-weight: 600;
+            color: #455a64;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .arrow-icon {
+            color: #90a4ae;
+            font-size: 1.2rem;
+        }
+
+        .drop-zone {
+            flex: 1;
+            min-width: 200px;
+            min-height: 50px;
+            background-color: #eceff1;
+            border: 2px dashed #cfd8dc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .drop-zone.hovered {
+            background-color: #e0f2f1;
+            border-color: var(--synonym-color);
+        }
+        
+        /* Specific hover colors for Antonyms */
+        .section-antonym .drop-zone.hovered {
+            background-color: #fce4ec;
+            border-color: var(--antonym-color);
+        }
+
+        /* Feedback */
+        .drop-zone.correct {
+            background-color: #e8f5e9 !important;
+            border-color: var(--correct) !important;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background-color: #ffebee !important;
+            border-color: var(--wrong) !important;
+            border-style: solid;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Draggables */
+        .word-pool {
+            margin-top: 20px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            min-height: 70px;
+        }
+
+        .drag-item {
+            background: white;
+            border: 1px solid #b0bec5;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: grab;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+            font-size: 1rem;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+
+        .drag-item.locked {
+            background-color: var(--correct);
+            color: white;
+            border-color: var(--correct);
+            cursor: default;
+        }
+
+        /* Controls */
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-reset { background: #ff9800; }
+        .btn-solve { background: #607d8b; }
+
+        @media (max-width: 600px) {
+            .match-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .static-item {
+                text-align: center;
+                justify-content: center;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 5px;
+            }
+            .arrow-icon {
+                transform: rotate(90deg); /* Arrow points down on mobile */
+                display: none; /* Or hide it to save space */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Synonyme & Antonyme</h1>
+    <h2>Ordnen Sie die Wörter zu. Finden Sie das passende russische Verb.</h2>
+
+    <div class="intro-box">
+        <strong>Erklärung:</strong>
+        <br><strong>Synonyme</strong> = Wörter mit gleicher/ähnlicher Bedeutung (z.B. <em>laufen</em> ≈ <em>rennen</em>).
+        <br><strong>Antonyme</strong> = Wörter mit gegensätzlicher Bedeutung (z.B. <em>heiß</em> ↔ <em>kalt</em>).
+    </div>
+
+    <!-- SYNONYME -->
+    <div class="section-card section-synonym" id="sec-syn">
+        <div class="header-synonym">
+            <span>≈</span> Teil 1: Synonyme (Das Gleiche)
+        </div>
+        
+        <!-- Row 1 -->
+        <div class="match-row">
+            <div class="static-item">
+                сделать детали / создать план
+                <span class="arrow-icon">→</span>
+            </div>
+            <div class="drop-zone" data-target="razrabotat"></div>
+        </div>
+        <!-- Row 2 -->
+        <div class="match-row">
+            <div class="static-item">
+                получать деньги (за работу)
+                <span class="arrow-icon">→</span>
+            </div>
+            <div class="drop-zone" data-target="zarabatyvat"></div>
+        </div>
+        <!-- Row 3 -->
+        <div class="match-row">
+            <div class="static-item">
+                улучшить / исправить
+                <span class="arrow-icon">→</span>
+            </div>
+            <div class="drop-zone" data-target="dorabotat"></div>
+        </div>
+        <!-- Row 4 -->
+        <div class="match-row">
+            <div class="static-item">
+                начать функционировать
+                <span class="arrow-icon">→</span>
+            </div>
+            <div class="drop-zone" data-target="zarabotat"></div>
+        </div>
+
+        <!-- Pool Synonyme -->
+        <div class="word-pool" id="pool-syn">
+            <div class="drag-item" draggable="true" data-match="razrabotat">разработать</div>
+            <div class="drag-item" draggable="true" data-match="zarabatyvat">зарабатывать</div>
+            <div class="drag-item" draggable="true" data-match="dorabotat">доработать</div>
+            <div class="drag-item" draggable="true" data-match="zarabotat">заработать</div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetSection('sec-syn')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSection('sec-syn')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- ANTONYME -->
+    <div class="section-card section-antonym" id="sec-ant">
+        <div class="header-antonym">
+            <span>↔</span> Teil 2: Antonyme (Das Gegenteil)
+        </div>
+
+        <!-- Row 1 -->
+        <div class="match-row">
+            <div class="static-item">
+                недоработать (zu wenig tun)
+                <span class="arrow-icon">↔</span>
+            </div>
+            <div class="drop-zone" data-target="pererabotat"></div>
+        </div>
+        <!-- Row 2 -->
+        <div class="match-row">
+            <div class="static-item">
+                лениться (faulenzen)
+                <span class="arrow-icon">↔</span>
+            </div>
+            <div class="drop-zone" data-target="urabotatsya"></div>
+        </div>
+        <!-- Row 3 -->
+        <div class="match-row">
+            <div class="static-item">
+                поссориться (sich streiten)
+                <span class="arrow-icon">↔</span>
+            </div>
+            <div class="drop-zone" data-target="srabotatsya"></div>
+        </div>
+        <!-- Row 4 -->
+        <div class="match-row">
+            <div class="static-item">
+                сломаться (kaputtgehen)
+                <span class="arrow-icon">↔</span>
+            </div>
+            <div class="drop-zone" data-target="zarabotat_ant"></div>
+        </div>
+
+        <!-- Pool Antonyme -->
+        <div class="word-pool" id="pool-ant">
+            <div class="drag-item" draggable="true" data-match="pererabotat">переработать</div>
+            <div class="drag-item" draggable="true" data-match="urabotatsya">уработаться</div>
+            <div class="drag-item" draggable="true" data-match="srabotatsya">сработаться</div>
+            <div class="drag-item" draggable="true" data-match="zarabotat_ant">заработать</div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetSection('sec-ant')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSection('sec-ant')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        setupGame();
+        shufflePool('pool-syn');
+        shufflePool('pool-ant');
+    });
+
+    function setupGame() {
+        const draggables = document.querySelectorAll('.drag-item');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const pools = document.querySelectorAll('.word-pool');
+
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', () => {
+                if(item.classList.contains('locked')) return;
+                item.classList.add('dragging');
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                if(!zone.hasChildNodes()) {
+                    zone.classList.add('hovered');
+                }
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('hovered');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('hovered');
+
+                const item = document.querySelector('.dragging');
+                if(!item) return;
+
+                // If zone occupied, swap or return (simplest: don't allow)
+                if(zone.hasChildNodes()) return;
+
+                zone.appendChild(item);
+                checkMatch(zone, item);
+            });
+        });
+
+        // Drop back to pool
+        pools.forEach(pool => {
+            pool.addEventListener('dragover', e => e.preventDefault());
+            pool.addEventListener('drop', e => {
+                e.preventDefault();
+                const item = document.querySelector('.dragging');
+                if(item && !item.classList.contains('locked')) {
+                    pool.appendChild(item);
+                    // Reset zones that might have been cleared
+                    document.querySelectorAll('.drop-zone').forEach(z => {
+                        if(!z.hasChildNodes()) z.classList.remove('correct', 'incorrect');
+                    });
+                }
+            });
+        });
+    }
+
+    function checkMatch(zone, item) {
+        const target = zone.getAttribute('data-target');
+        const match = item.getAttribute('data-match');
+
+        zone.classList.remove('correct', 'incorrect');
+        void zone.offsetWidth; // trigger reflow
+
+        if(target === match) {
+            zone.classList.add('correct');
+            item.classList.add('locked');
+            item.setAttribute('draggable', 'false');
+        } else {
+            zone.classList.add('incorrect');
+            // Incorrect items stay but show red. User must move them out.
+        }
+    }
+
+    function resetSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        const pool = section.querySelector('.word-pool');
+        const zones = section.querySelectorAll('.drop-zone');
+        
+        const items = [];
+        
+        // Collect items from zones
+        zones.forEach(zone => {
+            if(zone.firstChild) items.push(zone.firstChild);
+            zone.innerHTML = '';
+            zone.classList.remove('correct', 'incorrect');
+        });
+
+        // Collect items from pool
+        Array.from(pool.children).forEach(item => items.push(item));
+
+        // Reset items
+        items.forEach(item => {
+            item.classList.remove('locked');
+            item.setAttribute('draggable', 'true');
+            pool.appendChild(item);
+        });
+
+        shufflePool(pool.id);
+    }
+
+    function solveSection(sectionId) {
+        resetSection(sectionId);
+        const section = document.getElementById(sectionId);
+        const pool = section.querySelector('.word-pool');
+        const items = Array.from(pool.children);
+
+        items.forEach(item => {
+            const matchVal = item.getAttribute('data-match');
+            const zone = section.querySelector(`.drop-zone[data-target="${matchVal}"]`);
+            if(zone) {
+                zone.appendChild(item);
+                zone.classList.add('correct');
+                item.classList.add('locked');
+                item.setAttribute('draggable', 'false');
+            }
+        });
+    }
+
+    function shufflePool(poolId) {
+        const pool = document.getElementById(poolId);
+        for (let i = pool.children.length; i >= 0; i--) {
+            pool.appendChild(pool.children[Math.random() * i | 0]);
+        }
+    }
+</script>
+
+</body>
+</html>
