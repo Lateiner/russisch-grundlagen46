@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Den richtigen Kontext wählen (10 Sätze)</title>
+    <style>
+        :root {
+            --primary: #5c6bc0; /* Indigo Light */
+            --primary-dark: #3949ab;
+            --correct-bg: #c8e6c9;
+            --correct-border: #4caf50;
+            --wrong-bg: #ffcdd2;
+            --wrong-border: #f44336;
+            --bg: #eceff1;
+            --card-bg: #ffffff;
+            --text: #37474f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #78909c;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        .intro-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Question Card Styles */
+        .quiz-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: transform 0.2s;
+        }
+
+        .question-header {
+            font-weight: bold;
+            color: #90a4ae;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sentence {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+        }
+
+        .gap {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: bold;
+            text-align: center;
+            padding: 0 5px;
+        }
+
+        .context-hint {
+            font-style: italic;
+            color: #607d8b;
+            background: #f5f5f5;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .context-icon {
+            margin-right: 5px;
+        }
+
+        /* Options Layout */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #cfd8dc;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            position: relative;
+            color: var(--text);
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background-color: #e8eaf6;
+        }
+
+        /* Feedback States */
+        .option-btn.correct {
+            background-color: var(--correct-bg);
+            border-color: var(--correct-border);
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .option-btn.correct::after {
+            content: '✓';
+            position: absolute;
+            right: 15px;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-bg);
+            border-color: var(--wrong-border);
+            color: #c62828;
+            opacity: 0.7;
+        }
+
+        .option-btn.wrong::after {
+            content: '✗';
+            position: absolute;
+            right: 15px;
+            font-weight: bold;
+        }
+
+        /* Feedback Text Area */
+        .feedback-area {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+            font-size: 0.95rem;
+        }
+        .text-correct { color: #2e7d32; }
+        .text-wrong { color: #c62828; }
+
+        /* Card Controls */
+        .card-controls {
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #78909c;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+        .control-btn:hover { color: var(--primary); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr; /* Stack buttons vertically on phone */
+            }
+            .sentence {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Der richtige Kontext</h1>
+    <h2>Wählen Sie das russische Verb, das logisch zum deutschen Satz passt.</h2>
+
+    <div class="intro-box">
+        <strong>Tipp:</strong> Achten Sie auf die Hinweise in Klammern (der Kontext). 
+        Klicken Sie einfach auf die richtige Antwort.
+    </div>
+
+    <!-- Question 1 -->
+    <div class="quiz-card" id="q1">
+        <div class="question-header">Frage 1 von 10</div>
+        <div class="sentence">
+            „Ich habe gestern nur 30 Minuten <span class="gap" id="gap1">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">⏱️</span> Kontext: nur kurz / ein bisschen
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkAnswer('q1', 'gap1', 'porabotal', this)">проработал</button>
+            <button class="option-btn" onclick="checkAnswer('q1', 'gap1', 'porabotal', this)">заработал</button>
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q1', 'gap1', 'porabotal', this)">поработал</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q1"></div>
+        
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q1', 'gap1', 'поработал')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q1', 'gap1')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="quiz-card" id="q2">
+        <div class="question-header">Frage 2 von 10</div>
+        <div class="sentence">
+            „Mein Vater hat 40 Jahre in dieser Fabrik <span class="gap" id="gap2">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">📅</span> Kontext: eine lange Zeitdauer verbracht
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q2', 'gap2', 'prorabotal', this)">проработал</button>
+            <button class="option-btn" onclick="checkAnswer('q2', 'gap2', 'prorabotal', this)">поработал</button>
+            <button class="option-btn" onclick="checkAnswer('q2', 'gap2', 'prorabotal', this)">разработал</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q2"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q2', 'gap2', 'проработал')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q2', 'gap2')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="quiz-card" id="q3">
+        <div class="question-header">Frage 3 von 10</div>
+        <div class="sentence">
+            „Endlich! Mein Computer <span class="gap" id="gap3">...</span> wieder!“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">⚙️</span> Kontext: funktioniert wieder / ist angesprungen
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkAnswer('q3', 'gap3', 'zarabotal', this)">сработал</button>
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q3', 'gap3', 'zarabotal', this)">заработал</button>
+            <button class="option-btn" onclick="checkAnswer('q3', 'gap3', 'zarabotal', this)">отработал</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q3"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q3', 'gap3', 'заработал')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q3', 'gap3')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 4 -->
+    <div class="quiz-card" id="q4">
+        <div class="question-header">Frage 4 von 10</div>
+        <div class="sentence">
+            „Wir müssen einen neuen Plan <span class="gap" id="gap4">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">📝</span> Kontext: entwickeln / erstellen
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkAnswer('q4', 'gap4', 'razrabotat', this)">доработать</button>
+            <button class="option-btn" onclick="checkAnswer('q4', 'gap4', 'razrabotat', this)">заработать</button>
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q4', 'gap4', 'razrabotat', this)">разработать</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q4"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q4', 'gap4', 'разработать')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q4', 'gap4')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 5 -->
+    <div class="quiz-card" id="q5">
+        <div class="question-header">Frage 5 von 10</div>
+        <div class="sentence">
+            „Du siehst so müde aus. Hast du wieder <span class="gap" id="gap5">...</span>?“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">😫</span> Kontext: zu viel gearbeitet / Überstunden
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q5', 'gap5', 'pererabotal', this)">переработал</button>
+            <button class="option-btn" onclick="checkAnswer('q5', 'gap5', 'pererabotal', this)">недоработал</button>
+            <button class="option-btn" onclick="checkAnswer('q5', 'gap5', 'pererabotal', this)">проработал</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q5"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q5', 'gap5', 'переработал')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q5', 'gap5')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 6 -->
+    <div class="quiz-card" id="q6">
+        <div class="question-header">Frage 6 von 10</div>
+        <div class="sentence">
+            „Der Text ist gut, aber du musst ihn noch etwas <span class="gap" id="gap6">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">✏️</span> Kontext: verbessern / fertigstellen
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkAnswer('q6', 'gap6', 'dorabotat', this)">обработать</button>
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q6', 'gap6', 'dorabotat', this)">доработать</button>
+            <button class="option-btn" onclick="checkAnswer('q6', 'gap6', 'dorabotat', this)">разработать</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q6"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q6', 'gap6', 'доработать')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q6', 'gap6')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 7 -->
+    <div class="quiz-card" id="q7">
+        <div class="question-header">Frage 7 von 10</div>
+        <div class="sentence">
+            „Als Student hat er abends in einer Bar <span class="gap" id="gap7">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">☕</span> Kontext: gejobbt / dazuverdient
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q7', 'gap7', 'podrabotal', this)">подработал</button>
+            <button class="option-btn" onclick="checkAnswer('q7', 'gap7', 'podrabotal', this)">переработал</button>
+            <button class="option-btn" onclick="checkAnswer('q7', 'gap7', 'podrabotal', this)">сработал</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q7"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q7', 'gap7', 'подработал')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q7', 'gap7')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 8 -->
+    <div class="quiz-card" id="q8">
+        <div class="question-header">Frage 8 von 10</div>
+        <div class="sentence">
+            „Wir sind ein tolles Team. Wir haben uns super <span class="gap" id="gap8">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">🤝</span> Kontext: sich gut verstehen / eingespielt sein
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkAnswer('q8', 'gap8', 'srabotalis', this)">заработались</button>
+            <button class="option-btn" onclick="checkAnswer('q8', 'gap8', 'srabotalis', this)">доработались</button>
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q8', 'gap8', 'srabotalis', this)">сработались</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q8"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q8', 'gap8', 'сработались')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q8', 'gap8')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 9 -->
+    <div class="quiz-card" id="q9">
+        <div class="question-header">Frage 9 von 10</div>
+        <div class="sentence">
+            „Der Sportler muss diese Technik noch <span class="gap" id="gap9">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">🥋</span> Kontext: üben / perfektionieren
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkAnswer('q9', 'gap9', 'otrabotat', this)">поработать</button>
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q9', 'gap9', 'otrabotat', this)">отработать</button>
+            <button class="option-btn" onclick="checkAnswer('q9', 'gap9', 'otrabotat', this)">заработать</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q9"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q9', 'gap9', 'отработать')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q9', 'gap9')">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <!-- Question 10 -->
+    <div class="quiz-card" id="q10">
+        <div class="question-header">Frage 10 von 10</div>
+        <div class="sentence">
+            „Ich möchte im Sommer viel Geld <span class="gap" id="gap10">...</span>“
+        </div>
+        <div class="context-hint">
+            <span class="context-icon">💰</span> Kontext: Geld erhalten
+        </div>
+        
+        <div class="options-grid">
+            <button class="option-btn" onclick="checkAnswer('q10', 'gap10', 'zarabotat', this)">проработать</button>
+            <button class="option-btn" data-correct="true" onclick="checkAnswer('q10', 'gap10', 'zarabotat', this)">заработать</button>
+            <button class="option-btn" onclick="checkAnswer('q10', 'gap10', 'zarabotat', this)">наработать</button>
+        </div>
+
+        <div class="feedback-area" id="fb-q10"></div>
+
+        <div class="card-controls">
+            <button class="control-btn" onclick="solveCard('q10', 'gap10', 'заработать')">Lösung zeigen</button>
+            <button class="control-btn" onclick="resetCard('q10', 'gap10')">Zurücksetzen</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function checkAnswer(cardId, gapId, answerCode, btnElement) {
+        const card = document.getElementById(cardId);
+        const feedbackEl = document.getElementById('fb-' + cardId);
+        const gapEl = document.getElementById(gapId);
+        
+        // Remove old states from this card's buttons
+        const buttons = card.querySelectorAll('.option-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('correct', 'wrong');
+        });
+
+        // Check if correct
+        if (btnElement.hasAttribute('data-correct')) {
+            // Correct logic
+            btnElement.classList.add('correct');
+            feedbackEl.innerHTML = '<span class="text-correct">Richtig! Ausgezeichnet.</span>';
+            feedbackEl.className = 'feedback-area text-correct';
+            
+            // Fill the gap visually with the word
+            gapEl.textContent = btnElement.innerText;
+            gapEl.style.borderBottomColor = '#4caf50';
+            gapEl.style.color = '#2e7d32';
+        } else {
+            // Wrong logic
+            btnElement.classList.add('wrong');
+            feedbackEl.innerHTML = '<span class="text-wrong">Das passt hier leider nicht. Versuchen Sie es noch einmal!</span>';
+            feedbackEl.className = 'feedback-area text-wrong';
+            
+            // Reset gap style if it was previously correct
+            gapEl.textContent = '...';
+            gapEl.style.borderBottomColor = '#5c6bc0';
+            gapEl.style.color = '#5c6bc0';
+        }
+    }
+
+    function resetCard(cardId, gapId) {
+        const card = document.getElementById(cardId);
+        const gapEl = document.getElementById(gapId);
+        const feedbackEl = document.getElementById('fb-' + cardId);
+
+        // Reset buttons
+        const buttons = card.querySelectorAll('.option-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('correct', 'wrong');
+        });
+
+        // Reset text
+        gapEl.textContent = '...';
+        gapEl.style.borderBottomColor = '#5c6bc0';
+        gapEl.style.color = '#5c6bc0';
+
+        // Reset feedback
+        feedbackEl.innerHTML = '';
+    }
+
+    function solveCard(cardId, gapId, correctText) {
+        const card = document.getElementById(cardId);
+        const buttons = card.querySelectorAll('.option-btn');
+        const gapEl = document.getElementById(gapId);
+        const feedbackEl = document.getElementById('fb-' + cardId);
+
+        buttons.forEach(btn => {
+            btn.classList.remove('correct', 'wrong');
+            if (btn.hasAttribute('data-correct')) {
+                btn.classList.add('correct');
+            }
+        });
+
+        gapEl.textContent = correctText;
+        gapEl.style.borderBottomColor = '#4caf50';
+        gapEl.style.color = '#2e7d32';
+        
+        feedbackEl.innerHTML = '<span class="text-correct">Hier ist die Lösung.</span>';
+    }
+</script>
+
+</body>
+</html>
