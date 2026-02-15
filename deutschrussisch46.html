@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Übersetzungs-Trainer</title>
+    <style>
+        :root {
+            --primary: #1565c0; /* Blue darken-3 */
+            --primary-light: #e3f2fd;
+            --accent: #ff6f00; /* Amber darken-4 */
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333;
+            --correct: #2e7d32;
+            --wrong: #c62828;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+        }
+
+        h1 {
+            color: #37474f;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #78909c;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Main Card */
+        .quiz-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* German Source Word */
+        .source-word-box {
+            margin-bottom: 30px;
+        }
+
+        .lang-label {
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: #90a4ae;
+            font-weight: bold;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .german-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text);
+            line-height: 1.3;
+        }
+
+        .context-hint {
+            font-size: 1rem;
+            color: var(--primary);
+            font-style: italic;
+            margin-top: 5px;
+            background: var(--primary-light);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Options Grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-weight: 500;
+            position: relative;
+            /* No Cyrillic keyboard needed - user just clicks */
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background-color: #fafafa;
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            opacity: 0.7;
+            cursor: default;
+            transform: none;
+        }
+
+        /* Feedback States */
+        .option-btn.correct {
+            background-color: #e8f5e9;
+            border-color: var(--correct);
+            color: var(--correct);
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #ffebee;
+            border-color: var(--wrong);
+            color: var(--wrong);
+            opacity: 0.6;
+        }
+
+        /* Navigation */
+        .nav-area {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 25px;
+            height: 40px; /* Space holder */
+        }
+
+        .btn-next {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .btn-next:hover { background-color: #0d47a1; }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .score { font-size: 3rem; margin: 20px 0; font-weight: bold; }
+        
+        .btn-restart {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .german-text { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Übersetzung: DE → RU</h1>
+    <h2>Finden Sie das genaue russische Äquivalent für den deutschen Ausdruck.</h2>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quizArea" class="quiz-card">
+        
+        <!-- Source Word -->
+        <div class="source-word-box">
+            <span class="lang-label">Deutsch</span>
+            <div class="german-text" id="germanText">...</div>
+            <div class="context-hint" id="contextHint">...</div>
+        </div>
+
+        <span class="lang-label" style="margin-bottom: 10px;">Wähle die russische Übersetzung:</span>
+
+        <!-- Options -->
+        <div class="options-grid" id="optionsContainer">
+            <!-- Buttons injected here -->
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-area">
+            <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Weiter</button>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-screen">
+        <h2 id="resultTitle">Ergebnis</h2>
+        <p id="resultMsg">...</p>
+        <div class="score" id="finalScore"></div>
+        <button class="btn-restart" id="restartBtn" onclick="restartQuiz()">Neustart</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        {
+            de: "abarbeiten",
+            ctx: "Schulden / Strafe",
+            correct: "отработать",
+            distractors: ["поработать", "обработать", "заработать"]
+        },
+        {
+            de: "überarbeiten",
+            ctx: "verbessern / fertigstellen",
+            correct: "доработать",
+            distractors: ["переработать", "разработать", "отработать"]
+        },
+        {
+            de: "dazuverdienen",
+            ctx: "Nebenjob",
+            correct: "подработать",
+            distractors: ["заработать", "наработать", "проработать"]
+        },
+        {
+            de: "sich zusammenraufen",
+            ctx: "gut miteinander auskommen",
+            correct: "сработаться",
+            distractors: ["заработаться", "наработаться", "доработаться"]
+        },
+        {
+            de: "entwickeln",
+            ctx: "Plan / Strategie ausarbeiten",
+            correct: "разработать",
+            distractors: ["обработать", "выработать", "переработать"]
+        },
+        {
+            de: "ansammeln",
+            ctx: "Erfahrung / Stunden",
+            correct: "наработать",
+            distractors: ["заработать", "отработать", "доработать"]
+        },
+        {
+            de: "verarbeiten / recyceln",
+            ctx: "Müll / Material umwandeln",
+            correct: "переработать",
+            distractors: ["обработать", "разработать", "проработать"]
+        },
+        {
+            de: "funktionieren",
+            ctx: "Plan / Idee (Erfolg haben)",
+            correct: "сработать",
+            distractors: ["заработать", "поработать", "отработать"]
+        },
+        {
+            de: "Zeit verbringen",
+            ctx: "eine bestimmte Dauer arbeiten",
+            correct: "проработать",
+            distractors: ["поработать", "заработать", "выработать"]
+        },
+        {
+            de: "bearbeiten",
+            ctx: "Daten / Wunde / Material",
+            correct: "обработать",
+            distractors: ["разработать", "доработать", "переработать"]
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    let answered = false;
+
+    const germanText = document.getElementById('germanText');
+    const contextHint = document.getElementById('contextHint');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    
+    const quizArea = document.getElementById('quizArea');
+    const resultArea = document.getElementById('resultArea');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMsg = document.getElementById('resultMsg');
+    const finalScore = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+
+    function initQuiz() {
+        currentIdx = 0;
+        score = 0;
+        quizArea.style.display = 'block';
+        resultArea.style.display = 'none';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        answered = false;
+        nextBtn.style.display = 'none';
+        
+        const q = questions[currentIdx];
+        
+        // Progress
+        progressBar.style.width = `${(currentIdx / questions.length) * 100}%`;
+
+        // Texts
+        germanText.textContent = q.de;
+        contextHint.textContent = q.ctx;
+
+        // Mix Options (Correct + Distractors)
+        let options = [q.correct, ...q.distractors];
+        // Shuffle
+        options.sort(() => Math.random() - 0.5);
+
+        // Render Buttons
+        optionsContainer.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.onclick = () => checkAnswer(btn, opt);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, val) {
+        if (answered) return;
+        answered = true;
+
+        const q = questions[currentIdx];
+        const allBtns = optionsContainer.querySelectorAll('.option-btn');
+
+        if (val === q.correct) {
+            // Correct
+            btn.classList.add('correct');
+            score++;
+        } else {
+            // Wrong
+            btn.classList.add('wrong');
+            // Highlight Correct
+            allBtns.forEach(b => {
+                if(b.textContent === q.correct) b.classList.add('correct');
+            });
+        }
+
+        allBtns.forEach(b => b.disabled = true);
+        nextBtn.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        quizArea.style.display = 'none';
+        resultArea.style.display = 'block';
+        progressBar.style.width = '100%';
+        finalScore.textContent = `${score} / ${questions.length}`;
+
+        // Specific Feedback Logic
+        if (score === questions.length) {
+            resultTitle.textContent = "Perfekt!";
+            resultTitle.style.color = "#2e7d32";
+            resultMsg.textContent = "Du hast alles richtig gemacht. Dein Wortschatz ist hervorragend!";
+            restartBtn.textContent = "Neustart";
+        } else {
+            resultTitle.textContent = "Ergebnis";
+            resultTitle.style.color = "#333";
+            resultMsg.textContent = "Noch einmal wiederholen?";
+            restartBtn.textContent = "Wiederholen";
+        }
+    }
+
+    function restartQuiz() {
+        initQuiz();
+    }
+
+    // Start
+    initQuiz();
+</script>
+
+</body>
+</html>
