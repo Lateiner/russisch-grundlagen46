@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch Drill: ПО vs ПРО</title>
+    <style>
+        :root {
+            --po-color: #ff9800; /* Orange - "Kurz/Wenig" */
+            --po-bg: #fff3e0;
+            --pro-color: #3f51b5; /* Indigo - "Lang/Durch" */
+            --pro-bg: #e8eaf6;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333;
+            --correct: #4caf50;
+            --wrong: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            color: #455a64;
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #78909c;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        /* Explanation / Legend */
+        .legend-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .legend-po { background: var(--po-bg); color: #e65100; border: 1px solid var(--po-color); }
+        .legend-pro { background: var(--pro-bg); color: #1a237e; border: 1px solid var(--pro-color); }
+
+        .icon { font-size: 1.2rem; }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #607d8b;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Drill Card */
+        .drill-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .german-hint {
+            color: #90a4ae;
+            font-style: italic;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .sentence {
+            font-size: 1.6rem;
+            line-height: 1.4;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .gap {
+            display: inline-block;
+            min-width: 100px;
+            border-bottom: 3px solid #ccc;
+            color: transparent;
+            transition: all 0.3s;
+            padding: 0 5px;
+        }
+
+        .gap.filled {
+            border-bottom-color: transparent;
+            color: inherit;
+            font-weight: bold;
+        }
+
+        /* Buttons Area */
+        .interaction-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: auto;
+        }
+
+        .drill-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-transform: uppercase;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+
+        .drill-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .btn-po {
+            background-color: var(--po-color);
+            color: white;
+        }
+        
+        .btn-pro {
+            background-color: var(--pro-color);
+            color: white;
+        }
+
+        /* Feedback Animation */
+        .feedback-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .feedback-overlay.show { opacity: 1; pointer-events: auto; }
+        .feedback-correct { color: var(--correct); }
+        .feedback-wrong { color: var(--wrong); }
+        
+        .feedback-text { font-size: 1.2rem; margin-top: 10px; color: #333; font-weight: bold; }
+        .next-btn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .score { font-size: 3rem; margin: 20px 0; font-weight: bold; }
+        .btn-restart {
+            background-color: #607d8b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .sentence { font-size: 1.3rem; }
+            .drill-btn { padding: 15px; font-size: 1.2rem; }
+            .legend-box { flex-direction: column; gap: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Drill: ПО- vs. ПРО-</h1>
+    <h2>Entscheiden Sie schnell: Nur ein bisschen oder eine bestimmte Zeitspanne?</h2>
+
+    <div class="legend-box">
+        <div class="legend-item legend-po">
+            <span class="icon">⏱️</span> ПО- = Kurz / Ein bisschen
+        </div>
+        <div class="legend-item legend-pro">
+            <span class="icon">📅</span> ПРО- = Zeitspanne / Dauer
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quizArea" class="drill-card">
+        
+        <div class="german-hint" id="germanHint">...</div>
+        
+        <div class="sentence">
+            <span id="sentPre"></span>
+            <span class="gap" id="sentGap">...</span>
+            <span id="sentPost"></span>
+        </div>
+
+        <div class="interaction-area">
+            <button class="drill-btn btn-po" onclick="handleInput('po')">ПО-</button>
+            <button class="drill-btn btn-pro" onclick="handleInput('pro')">ПРО-</button>
+        </div>
+
+        <!-- Feedback Overlay -->
+        <div class="feedback-overlay" id="feedbackOverlay">
+            <div id="feedbackIcon"></div>
+            <div class="feedback-text" id="feedbackText"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Weiter</button>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-screen">
+        <h2 id="resultTitle">Ergebnis</h2>
+        <p id="resultMsg">...</p>
+        <div class="score" id="finalScore"></div>
+        <button class="btn-restart" id="restartBtn" onclick="restartGame()">Neustart</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        {
+            german: "Ich möchte ein bisschen im Garten arbeiten.",
+            pre: "Я хочу немного ", post: " в саду.",
+            answer: "po",
+            fullWord: "поработать"
+        },
+        {
+            german: "Mein Vater hat 40 Jahre in der Fabrik gearbeitet.",
+            pre: "Мой отец ", post: " на заводе 40 лет.",
+            answer: "pro",
+            fullWord: "проработал"
+        },
+        {
+            german: "Wie lange hast du dort gearbeitet?",
+            pre: "Сколько времени ты там ", post: "?",
+            answer: "pro",
+            fullWord: "проработал"
+        },
+        {
+            german: "Lass uns ein wenig arbeiten und dann ausruhen.",
+            pre: "Давай ", post: " и потом отдохнём.",
+            answer: "po",
+            fullWord: "поработаем"
+        },
+        {
+            german: "Sie hat die ganze Nacht gearbeitet.",
+            pre: "Она ", post: " всю ночь.",
+            answer: "pro",
+            fullWord: "проработала"
+        },
+        {
+            german: "Kann ich 5 Minuten an deinem Computer arbeiten?",
+            pre: "Можно мне 5 минут ", post: " на твоём компьютере?",
+            answer: "po", // 5 min is usually short/a bit
+            fullWord: "поработать"
+        },
+        {
+            german: "Wir haben einen ganzen Monat an diesem Projekt gearbeitet.",
+            pre: "Мы ", post: " над этим проектом целый месяц.",
+            answer: "pro",
+            fullWord: "проработали"
+        },
+        {
+            german: "Ich arbeite ein bisschen und komme später.",
+            pre: "Я ", post: " и приду позже.",
+            answer: "po",
+            fullWord: "поработаю"
+        },
+        {
+            german: "Dieser Kühlschrank hat 20 Jahre funktioniert!",
+            pre: "Этот холодильник ", post: " 20 лет!",
+            answer: "pro",
+            fullWord: "проработал"
+        },
+        {
+            german: "Ich muss noch etwas mit dem Text arbeiten.",
+            pre: "Мне нужно ещё немного ", post: " с текстом.",
+            answer: "po",
+            fullWord: "поработать"
+        }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+
+    const quizArea = document.getElementById('quizArea');
+    const resultArea = document.getElementById('resultArea');
+    const germanHint = document.getElementById('germanHint');
+    const sentPre = document.getElementById('sentPre');
+    const sentPost = document.getElementById('sentPost');
+    const sentGap = document.getElementById('sentGap');
+    const progressBar = document.getElementById('progressBar');
+    
+    const feedbackOverlay = document.getElementById('feedbackOverlay');
+    const feedbackIcon = document.getElementById('feedbackIcon');
+    const feedbackText = document.getElementById('feedbackText');
+    const nextBtn = document.getElementById('nextBtn');
+
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMsg = document.getElementById('resultMsg');
+    const finalScore = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+
+    function initGame() {
+        currentIdx = 0;
+        score = 0;
+        quizArea.style.display = 'flex';
+        resultArea.style.display = 'none';
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        feedbackOverlay.classList.remove('show');
+        const q = questions[currentIdx];
+
+        // Update UI
+        progressBar.style.width = `${(currentIdx / questions.length) * 100}%`;
+        germanHint.textContent = q.german;
+        sentPre.textContent = q.pre;
+        sentPost.textContent = q.post;
+        
+        // Reset Gap
+        sentGap.textContent = "...";
+        sentGap.classList.remove('filled');
+        sentGap.style.color = "transparent";
+        sentGap.style.borderBottomColor = "#ccc";
+    }
+
+    function handleInput(choice) {
+        const q = questions[currentIdx];
+        const isCorrect = (choice === q.answer);
+
+        // Fill gap visually
+        sentGap.textContent = q.fullWord;
+        sentGap.classList.add('filled');
+
+        // Color Logic
+        if (choice === 'po') {
+            sentGap.style.color = "var(--po-color)";
+        } else {
+            sentGap.style.color = "var(--pro-color)";
+        }
+
+        if (isCorrect) {
+            score++;
+            showFeedback(true, "Richtig!");
+        } else {
+            // Visual correction if wrong
+            sentGap.style.color = "var(--wrong)";
+            sentGap.style.textDecoration = "line-through";
+            
+            // Show correct word after delay or in feedback text
+            showFeedback(false, `Falsch. Richtig ist: ${q.fullWord}`);
+        }
+    }
+
+    function showFeedback(correct, text) {
+        feedbackOverlay.classList.add('show');
+        feedbackText.innerHTML = text;
+        
+        if (correct) {
+            feedbackIcon.textContent = "✅";
+            feedbackIcon.className = "feedback-correct";
+            // Auto advance for correct answer to keep rhythm? 
+            // Let's stick to manual "Next" for clarity, or auto after 1s.
+            // Requirement said "Drill", but let's be safe and wait for click.
+            nextBtn.focus(); 
+        } else {
+            feedbackIcon.textContent = "❌";
+            feedbackIcon.className = "feedback-wrong";
+        }
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            loadQuestion();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        quizArea.style.display = 'none';
+        resultArea.style.display = 'block';
+        progressBar.style.width = '100%';
+        finalScore.textContent = `${score} / ${questions.length}`;
+
+        if (score === 10) {
+            resultTitle.textContent = "Perfekt!";
+            resultTitle.style.color = "var(--correct)";
+            resultMsg.textContent = "Du hast alles richtig gemacht. Ein echter Profi!";
+            restartBtn.textContent = "Neustart";
+        } else {
+            resultTitle.textContent = "Übung beendet";
+            resultTitle.style.color = "#333";
+            resultMsg.textContent = "Noch einmal wiederholen?";
+            restartBtn.textContent = "Wiederholen";
+        }
+    }
+
+    function restartGame() {
+        initGame();
+    }
+
+    // Start
+    initGame();
+</script>
+
+</body>
+</html>
